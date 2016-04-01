@@ -1,8 +1,11 @@
+package com.simple8583;
+
 import com.simple8583.client.SimpleClient;
 import com.simple8583.factory.XmlReader;
 import com.simple8583.key.SimpleConstants;
 
 import javax.xml.bind.JAXBException;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;

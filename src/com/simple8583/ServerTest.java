@@ -1,3 +1,5 @@
+package com.simple8583;
+
 import com.simple8583.factory.XmlReader;
 import com.simple8583.server.DefaultServer;
 
