@@ -40,8 +40,7 @@ public class IsoMsgFactory extends AbstractIsoMsgFactory{
 	// 41 Card Acceptor Terminal Identification
 	@Override
 	protected byte[] mac(IsoPackage isoPackage) throws Exception {
-		String[] md5Array = { "2", "3", "4", "11", "12", "13", "49", "38",
-				"39", "41" };
+		String[] md5Array = { "3","10","32","40"};
 		StringBuffer accum = new StringBuffer();
 		for (String key : md5Array) {
 			IsoField field = isoPackage.getIsoField(key);

@@ -9,6 +9,7 @@ import com.simple8583.exception.Simple8583Exception;
 import com.simple8583.factory.IsoMsgFactory;
 import com.simple8583.factory.XmlReader;
 import com.simple8583.model.IsoPackage;
+import com.simple8583.util.EncodeUtil;
 
 /**
  * <p>发送客户端抽象类.</p>
@@ -47,13 +48,18 @@ public abstract class AbstractClient {
 		IsoPackage pack = xmlReader.getIsoConfig().get(mti);
 		byte[] buf = null;
 		try {
-			byte[] sendData =factory.pack(dataMap, pack);
+
+			byte[] sendData = factory.pack(dataMap, pack);
+			/*byte[] sendData = {02,00,53,60,00,40,00,00,08,00,0x20,0x40,0x00,0x01,0x01,0x00,0x00,0x01,0x00,0x00,
+					0x01,02,0x30,0x31,0x30,0x31,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,08,
+					0x37,0x37,0x35,0x33,0x37,0x39,0x34,0x37,0x0D,0x243,0xD3,0x5C,0x7B,0xA5,0x50,0x5F,03,0xA9};*/
+
 			Socket socket = new Socket();
 			InetAddress inetAddress = InetAddress.getByName(this.ip);
 			InetSocketAddress address = new InetSocketAddress(inetAddress, port);
 			try {
 				// 发送的报文
-//				System.out.println("发送报文：" + EncodeUtil.hex(sendData));
+				System.out.println("发送报文：" + EncodeUtil.hex(sendData));
 				socket.setReuseAddress(true);
 				socket.connect(address);
 				socket.setSoTimeout(this.timeout);
@@ -63,6 +69,7 @@ public abstract class AbstractClient {
 				//两字节长度
 				byte[] lenbuf = new byte[2];
 				while (socket != null && socket.isConnected()) {
+					
 					if (socket.getInputStream().read(lenbuf) == 2) {
 						//计算前两位报文所表示的报文长度
 						int size = computeLength(lenbuf);
@@ -74,7 +81,7 @@ public abstract class AbstractClient {
 					}
 				}
 				
-//				System.out.println(EncodeUtil.hex(buf));
+				System.out.println(EncodeUtil.hex(buf));
 			} finally {
 				if (socket != null) {
 					try {
