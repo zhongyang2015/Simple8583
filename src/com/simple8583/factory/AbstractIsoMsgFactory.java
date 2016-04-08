@@ -15,6 +15,7 @@ import com.simple8583.model.IsoField;
 import com.simple8583.model.IsoPackage;
 import com.simple8583.util.EncodeUtil;
 import com.simple8583.util.SimpleUtil;
+import com.simple8583.util.encrypt.MacUtil;
 
 
 /**
@@ -172,76 +173,82 @@ public abstract class AbstractIsoMsgFactory {
 		String sth ="";
 		for (IsoField field : isoPackage) {
 			if (field.isChecked()) {
+				String value_16="";
                 //Mac
-				if (isoPackage.isMacPos(field.getId())) {
+				if (isoPackage.isMacPos(field.getId())) {// 判断是否为mac位，如果是进行mac算法
 					try {
-						byteOutPut.write(mac(isoPackage));
-						
+//						byteOutPut.write(mac(isoPackage));
+//						System.out.println(field.getId() + ":"+  EncodeUtil.hex(mac(isoPackage)));
+						System.out.println("16进制mac前数据"+sth);
+						byteOutPut.write(EncodeUtil.bcd(MacUtil.MAC(macKey, null, sth)));
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
-					continue;
+					continue;//FIXME
 				}
 				switch (field.getIsoType()) {
-				case LLVAR_NUMERIC:
+				case LLVAR_NUMERIC:{
 					byte[] lengthByte0 = new byte[1];
 					lengthByte0 = EncodeUtil.bcd(field.getValue().length(), 1);
 					byteOutPut.write(lengthByte0);
+					value_16=EncodeUtil.hex(field.getByteValue());
+					value_16="0"+(value_16.length()/2)+value_16;
 					break;
-				case LLVAR:
+				}
+					
+				case LLVAR:{
 					byte[] lengthByte = new byte[1];
 					lengthByte = EncodeUtil.bcd(field.getByteValue().length, 1);
 					byteOutPut.write(lengthByte);
+					value_16=EncodeUtil.hex(field.getByteValue());
+					value_16="0"+(value_16.length()/2)+value_16;
 					break;
-				case LLLVAR:
+				}
+					
+				case LLLVAR:{
 					byte[] lengthByte2 = new byte[2];
-					lengthByte2 = EncodeUtil
-							.bcd(field.getByteValue().length, 2);
+					lengthByte2 = EncodeUtil.bcd(field.getByteValue().length, 2);
 					byteOutPut.write(lengthByte2);
+					value_16=EncodeUtil.hex(field.getByteValue());
+					value_16="0"+(value_16.length()/2)+value_16;
 					break;
+				}
+					
 				default:
 					break;
 				}
-				System.out.println(field.getId() + ":"
-						+  EncodeUtil.hex(field.getByteValue()));
+				if(!field.getId().equals("tpdu")){
+						sth+=value_16.equals("")?EncodeUtil.hex(field.getByteValue()):value_16;	
+				}
+			
+				System.out.println(field.getId() + ":"+  EncodeUtil.hex(field.getByteValue()));
 				byteOutPut.write(field.getByteValue());
 			}
 		}
-		byte[] beforeSend = byteOutPut.toByteArray();
-		byte[] bts = new byte[beforeSend.length + 4];
-		byte[] lenArr = msgLength(beforeSend.length);
-		//byte[] lenArr = Int2ByteArray(beforeSend.length,2);
-		
-		
-		//byte[] lenArr = str2Bcd(String.valueOf(beforeSend.length));
-//		ByteArrayOutputStream byteOutPut1 = new ByteArrayOutputStream(1);
-//		byteOutPut1.write(beforeSend.length);
-//		byte[] lenArr = byteOutPut1.toByteArray();
-		
-		
-		
-		/*int tem = beforeSend.length;
-		 * 
-		char temp = */
-	//	temp = (temp>>4)*10+(temp&0X0F);
-//		byte[] lenArr =  new byte[2];//Integer.toBinaryString(i).getBytes();
-		/*if(len>99){
-			lenArr[0] = (byte)(len/100);
-			lenArr[1] = (byte)(len%100);
-		}else{
-			lenArr[0] = 0x0;
-			lenArr[1] = (byte)(len%100);
-		}*/
-		System.out.println(Arrays.toString(lenArr));
-		//char lenArr = 0x053;
-//		byteOutPut.write(i);;
-		System.arraycopy(lenArr, 0, bts, 1, 2);
-		System.arraycopy(beforeSend,0, bts, 3, beforeSend.length);
+		System.out.println(sth);
+		byte[] beforeSend = byteOutPut.toByteArray();//数据：tpdu+消息类型+bitmap+包体+mac
+		byte[] bts = new byte[beforeSend.length + 5];//数据包头（1）+数据包长度（2）+数据+数据包尾(1)+LRC(1)
+		//设置数据包头
 		bts[0]=0x02;
-//		bts[1]=0x00;
-//		bts[2]=0x92;
-		
-		bts[bts.length-1]=0x03;
+		//计算长度
+		byte[] lenArr = EncodeUtil.bcd(String.valueOf(beforeSend.length),2);
+		//设置包长
+		System.arraycopy(lenArr, 0, bts, 1, 2);//数据包长度，复制到2-3位
+		//设置数据
+		System.arraycopy(beforeSend,0, bts, 3, beforeSend.length);//把数据放到4-leng+4
+		//设置包尾
+		bts[bts.length-2]=0x03;//包尾
+		//计算LRC
+		int hy=0;
+		for(int i=0;i<bts.length-1;i++){
+			if(i==0){
+				hy = bts[i]^bts[i+1];
+			}else{
+				hy = hy^bts[i];
+			}
+		}
+		//设置LRC
+		bts[bts.length-1]=(byte)hy;
 		System.out.println(Arrays.toString(bts));
      	return bts;
 	}
@@ -268,77 +275,7 @@ public abstract class AbstractIsoMsgFactory {
 		return bLocalArr;
 	}
     
-    public static byte[] str2Bcd(String asc) { 
 
- int len = asc.length(); 
-
- int mod = len % 2; 
-
- if (mod != 0) { 
-
- asc = "0" + asc; 
-
-len = asc.length(); 
-
- } 
-
- byte abt[] = new byte[len]; 
-
-  if (len >= 2) { 
-
-    len = len / 2; 
-
-     } 
-
-            byte bbt[] = new byte[len]; 
-
-           abt = asc.getBytes(); 
-
-            int j, k; 
-
-        for (int p = 0; p < asc.length() / 2; p++) { 
-
-               if ((abt[2 * p] >= '0') && (abt[2 * p] <= '9')) { 
-
-                    j = abt[2 * p] - '0'; 
-
-             } else if ((abt[2 * p] >= 'a') && (abt[2 * p] <= 'z')) { 
-
-                  j = abt[2 * p] - 'a' + 0x0a; 
-
-               } else { 
-
-                   j = abt[2 * p] - 'A' + 0x0a; 
-
-              } 
-
-              if ((abt[2 * p + 1] >= '0') && (abt[2 * p + 1] <= '9')) { 
-
-                 k = abt[2 * p + 1] - '0'; 
-
-            } else if ((abt[2 * p + 1] >= 'a') && (abt[2 * p + 1] <= 'z')) { 
-
-                 k = abt[2 * p + 1] - 'a' + 0x0a; 
-
-             } else { 
-
-                     k = abt[2 * p + 1] - 'A' + 0x0a; 
-
-                 } 
-
-               int a = (j << 4) + k; 
-
-                 byte b = (byte) a; 
-
-               bbt[p] = b; 
-
-                System.out.format("%02X\n", bbt[p]);
-
-           } 
-
-           return bbt; 
-
-       } 
 
     
 }

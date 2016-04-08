@@ -1,9 +1,14 @@
 package com.simple8583.client;
 
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
+
+
 
 import com.simple8583.exception.Simple8583Exception;
 import com.simple8583.factory.IsoMsgFactory;
@@ -50,10 +55,6 @@ public abstract class AbstractClient {
 		try {
 
 			byte[] sendData = factory.pack(dataMap, pack);
-			/*byte[] sendData = {02,00,53,60,00,40,00,00,08,00,0x20,0x40,0x00,0x01,0x01,0x00,0x00,0x01,0x00,0x00,
-					0x01,02,0x30,0x31,0x30,0x31,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,08,
-					0x37,0x37,0x35,0x33,0x37,0x39,0x34,0x37,0x0D,0x243,0xD3,0x5C,0x7B,0xA5,0x50,0x5F,03,0xA9};*/
-
 			Socket socket = new Socket();
 			InetAddress inetAddress = InetAddress.getByName(this.ip);
 			InetSocketAddress address = new InetSocketAddress(inetAddress, port);
@@ -70,6 +71,13 @@ public abstract class AbstractClient {
 				byte[] lenbuf = new byte[2];
 				while (socket != null && socket.isConnected()) {
 					
+//					BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//					String line;
+//					String ret="";
+//					while((line=reader.readLine())!=null){		
+//						ret+=line;
+//					}
+//					System.out.println(ret);
 					if (socket.getInputStream().read(lenbuf) == 2) {
 						//计算前两位报文所表示的报文长度
 						int size = computeLength(lenbuf);

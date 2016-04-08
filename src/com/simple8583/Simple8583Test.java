@@ -3,6 +3,7 @@ package com.simple8583;
 import com.simple8583.client.SimpleClient;
 import com.simple8583.factory.XmlReader;
 import com.simple8583.key.SimpleConstants;
+import com.simple8583.util.EncodeUtil;
 
 import javax.xml.bind.JAXBException;
 
@@ -41,14 +42,16 @@ public class Simple8583Test {
         requestMap.put("3","000001");
         requestMap.put("10","01");
         requestMap.put("32","01");
-        requestMap.put("40","77537947");   
-        requestMap.put("64","0DE3D35C7BA5505F");   
+
+        requestMap.put("40","77537947");//87126291   
+        requestMap.put("64","");   
+
         String ip = "58.32.228.203";
         int port = 10666;
         int timeout = 5000;//15s超时
 
 
-        String macKey = "1234567890abcdef";
+        String macKey = "1234567890ABCDEF";
        // getMac(macKey, data);
         SimpleClient simpleClient = new SimpleClient(ip,port,timeout);
         simpleClient.setMacKey(macKey);

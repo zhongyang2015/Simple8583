@@ -53,14 +53,20 @@ public class IsoMsgFactory extends AbstractIsoMsgFactory{
 			if (field.getId().equals("49")) {
 				accum.append(field.getValue().substring(1));
 			} else {
-				accum.append(field.getValue());
+				accum.append(EncodeUtil.hex(field.getByteValue()));
 			}
 		}
+		//FIXME 需要将值转化成16进制的值
 		String original = accum.toString();
 		String val = TripleDES.getMac(macKey, original);
 		return EncodeUtil.bcd(val);
 	}
-
+	public static void main(String[] args) {
+	String org="00000130313031000000000000000000000000003737353337393437";
+	String val = TripleDES.getMac("1234567890abcdef", org);
+	System.out.println(val);
+	
+	}
 
 	//生成前两个字节的长度位
 	//根据约定不同需要对此方法进行重写
