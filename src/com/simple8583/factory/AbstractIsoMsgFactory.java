@@ -208,6 +208,7 @@ public abstract class AbstractIsoMsgFactory {
 			}
 		}
 		byte[] beforeSend = byteOutPut.toByteArray();
+		System.out.println(EncodeUtil.hex(beforeSend));
 		byte[] bts = new byte[beforeSend.length + 5];
 		//长度bcd
 		byte[] lenArr = EncodeUtil.bcd(String.valueOf(beforeSend.length),2);

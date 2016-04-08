@@ -1,7 +1,9 @@
 package com.simple8583.factory;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Map;
 
+import com.google.common.base.Strings;
 import com.simple8583.model.IsoField;
 import com.simple8583.model.IsoPackage;
 import com.simple8583.util.EncodeUtil;
@@ -40,7 +42,20 @@ public class IsoMsgFactory extends AbstractIsoMsgFactory{
 	// 41 Card Acceptor Terminal Identification
 	@Override
 	protected byte[] mac(IsoPackage isoPackage) throws Exception {
-		String[] md5Array = { "3","10","32","40"};
+		
+//		StringBuffer accum = new StringBuffer();
+//		accum.append(isoPackage.getMti());
+//		for (IsoField field : isoPackage) {
+//			if("BitMap".equals(field.getId())){
+//				accum.append(field.getValue());
+//			}
+//			if(!Strings.isNullOrEmpty(field.getType())){
+//				accum.append(field.getValue());
+//			}
+//		}
+		
+		String[] md5Array = {"mti","BitMap", "3","10","32","40"};
+		ByteArrayOutputStream byteOutPut = new ByteArrayOutputStream(100);
 		StringBuffer accum = new StringBuffer();
 		for (String key : md5Array) {
 			IsoField field = isoPackage.getIsoField(key);
@@ -53,12 +68,15 @@ public class IsoMsgFactory extends AbstractIsoMsgFactory{
 			if (field.getId().equals("49")) {
 				accum.append(field.getValue().substring(1));
 			} else {
-				accum.append(field.getValue());
+				byteOutPut.write(field.getByteValue());
 			}
 		}
-		String original = accum.toString();
-		String val = TripleDES.getMac(macKey, original);
+		byte[] beforeSend = byteOutPut.toByteArray();
+		String original = EncodeUtil.hex(beforeSend);
+		String val = TripleDES.getMac(macKey, "08002040000101000001000001023031303100000000000000000000000000083737353337393437");
 		return EncodeUtil.bcd(val);
+		//08002040000101000001000001023031303100000000000000000000000000083737353337393437
+		//  08002040000101000001000001  3031303100000000000000000000000000  3737353337393437
 	}
 
 

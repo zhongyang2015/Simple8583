@@ -832,7 +832,8 @@ public class MacUtil {
 		 * @return	加密后的数据
 		 */
 		public static String MAC_ASC(String key,String vector,String data){
-			return MAC(key,vector,EncodeUtil.hex(data.getBytes()));
+			//return MAC(key,vector,EncodeUtil.hex(data.getBytes()));
+			return MAC(key,vector,data);
 		}
 		
 		public static String MAC(String key,String vector,String data)

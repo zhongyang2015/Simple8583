@@ -1,14 +1,11 @@
 package com.simple8583;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.simple8583.client.SimpleClient;
 import com.simple8583.factory.XmlReader;
 import com.simple8583.key.SimpleConstants;
-
-import javax.xml.bind.JAXBException;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * <p>测试类.</p>
@@ -41,14 +38,13 @@ public class Simple8583Test {
         requestMap.put("3","000001");
         requestMap.put("10","01");
         requestMap.put("32","01");
-        requestMap.put("40","87126291");   
+        requestMap.put("40","77537947");   
         requestMap.put("64","");   
         String ip = "58.32.228.203";
         int port = 10666;
         int timeout = 5000;//15s超时
 
-
-        String macKey = "1234567890abcdef";
+        String macKey = "1234567890ABCDEF";
        // getMac(macKey, data);
         SimpleClient simpleClient = new SimpleClient(ip,port,timeout);
         simpleClient.setMacKey(macKey);
