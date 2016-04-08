@@ -78,7 +78,7 @@ public abstract class AbstractServer {
     protected abstract Map<String,String> response(Map<String, String> receiveMap);
 
     private String getMti(byte[] byteBody){
-        return "0200";
+        return "0420";
     }
 
     protected int msgLength(byte[] lenBts){

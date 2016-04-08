@@ -33,14 +33,14 @@ public class Simple8583Test {
         requestMap.put("4","01041");
         requestMap.put("9","012");
         requestMap.put("8","SP99515061500104387");
-        String ip = "localhost";
-        int port = 8999;
+        String ip = "58.32.228.203";
+        int port = 10666;
         int timeout = 15000;//15s超时
 
         String macKey = "helloSimple8583";
         SimpleClient simpleClient = new SimpleClient(ip,port,timeout);
         simpleClient.setMacKey(macKey);
-        XmlReader xmlReader = new XmlReader("simple8583.xml");
+        XmlReader xmlReader = new XmlReader("com/simple8583/simple8583.xml");
         Map<String,String> resultMap = simpleClient.sendToBank(requestMap,xmlReader);
         System.out.println(resultMap);
     }

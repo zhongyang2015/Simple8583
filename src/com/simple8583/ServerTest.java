@@ -14,7 +14,7 @@ public class ServerTest {
 
 
     public static void main(String[] args) throws  Exception {
-        XmlReader xmlReader  = new XmlReader("simple8583.xml");
+        XmlReader xmlReader  = new XmlReader("com/simple8583/simple8583.xml");
         new DefaultServer().init(xmlReader);
     }
 

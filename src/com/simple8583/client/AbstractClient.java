@@ -47,7 +47,7 @@ public abstract class AbstractClient {
 		IsoPackage pack = xmlReader.getIsoConfig().get(mti);
 		byte[] buf = null;
 		try {
-			byte[] sendData = factory.pack(dataMap, pack);
+			byte[] sendData =factory.pack(dataMap, pack);
 			Socket socket = new Socket();
 			InetAddress inetAddress = InetAddress.getByName(this.ip);
 			InetSocketAddress address = new InetSocketAddress(inetAddress, port);
@@ -101,5 +101,27 @@ public abstract class AbstractClient {
     public void setMacKey(String macKey) {
         this.macKey = macKey;
     }
+    
+    public static byte[] getBytes(){
+    	byte[] arr=new byte[]{
+    			02 ,00 ,53 ,60, 00 ,40 ,00 ,00, 0x08, 00 ,20, 40, 00, 01, 01, 00, 00, 01, 00, 00,
+    			01 ,02, 30, 31, 30, 31, 00, 00, 00 ,00 ,00 ,00 ,00 ,00, 00, 00, 00, 00, 00, 0x08,
+    			37, 37, 35, 33, 37, 39, 34, 37, 14, (byte) Long.parseLong("E3", 16),(byte) Long.parseLong("D3", 16) ,
+    			(byte) Long.parseLong("5C", 16),
+    			(byte) Long.parseLong("7B", 16),
+    			(byte) Long.parseLong("A5", 16),
+    			(byte) Long.parseLong("50", 16),
+    			(byte) Long.parseLong("5F", 16),
+    			(byte) Long.parseLong("03", 16),
+    			(byte) Long.parseLong("A9", 16)
+    	} ;
+    	
+    	return arr;
+    	
+    	
+    	
+    }
+    
+    
 
 }
