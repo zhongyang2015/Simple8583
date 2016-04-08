@@ -28,12 +28,13 @@ public class TripleDES extends DES {
 		String lk = macKey.substring(0, 16);
 		String rk = macKey.substring(16);
 		String second_result = MacUtil.MAC_ASC(lk, "0000000000000000", data);// ANSI-X9.9-MAC计算mac
-		System.out.println("第一步结果:" + second_result);
+		/*System.out.println("第一步结果:" + second_result);
 		String triple_result = DES_1(second_result, rk, 1);// 1为解密，第三部结果
 		System.out.println("第二步结果:" + triple_result);
 		String fourth_result = DES_1(triple_result, lk, 0);// 0为加密，使用左16位密钥
 		System.out.println("第三步结果:" + fourth_result);
-		return fourth_result;
+		return fourth_result;*/
+		return second_result;
 	}
 
 

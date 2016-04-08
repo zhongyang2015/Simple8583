@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +66,10 @@ public abstract class AbstractIsoMsgFactory {
 		byte[] bitMapByte = bitMap.addBits(dataFieldList);
 		//设置BitMap的值
 		packClone.getIsoField(SimpleConstants.BIT_MAP).setByteValue(bitMapByte);
+		
+		
+		
+		
 		//将数组合并
 		return merge(packClone);
 	}
@@ -164,12 +169,14 @@ public abstract class AbstractIsoMsgFactory {
 	// Byte数组的合并，不同byte数组域将被整合为一个大的byte数组
 	private byte[] merge(IsoPackage isoPackage) throws IOException {
 		ByteArrayOutputStream byteOutPut = new ByteArrayOutputStream(100);
+		String sth ="";
 		for (IsoField field : isoPackage) {
 			if (field.isChecked()) {
                 //Mac
 				if (isoPackage.isMacPos(field.getId())) {
 					try {
 						byteOutPut.write(mac(isoPackage));
+						
 					} catch (Exception e) {
 						e.printStackTrace();
 					}
@@ -196,18 +203,47 @@ public abstract class AbstractIsoMsgFactory {
 					break;
 				}
 				System.out.println(field.getId() + ":"
-						+ EncodeUtil.hex(field.getByteValue()));
-
+						+  EncodeUtil.hex(field.getByteValue()));
 				byteOutPut.write(field.getByteValue());
 			}
 		}
 		byte[] beforeSend = byteOutPut.toByteArray();
-		byte[] bts = new byte[beforeSend.length + 2];
+		byte[] bts = new byte[beforeSend.length + 4];
 		byte[] lenArr = msgLength(beforeSend.length);
-		//
-		System.arraycopy(lenArr, 0, bts, 0, 2);
-		System.arraycopy(beforeSend, 0, bts, 2, beforeSend.length);
-		return bts;
+		//byte[] lenArr = Int2ByteArray(beforeSend.length,2);
+		
+		
+		//byte[] lenArr = str2Bcd(String.valueOf(beforeSend.length));
+//		ByteArrayOutputStream byteOutPut1 = new ByteArrayOutputStream(1);
+//		byteOutPut1.write(beforeSend.length);
+//		byte[] lenArr = byteOutPut1.toByteArray();
+		
+		
+		
+		/*int tem = beforeSend.length;
+		 * 
+		char temp = */
+	//	temp = (temp>>4)*10+(temp&0X0F);
+//		byte[] lenArr =  new byte[2];//Integer.toBinaryString(i).getBytes();
+		/*if(len>99){
+			lenArr[0] = (byte)(len/100);
+			lenArr[1] = (byte)(len%100);
+		}else{
+			lenArr[0] = 0x0;
+			lenArr[1] = (byte)(len%100);
+		}*/
+		System.out.println(Arrays.toString(lenArr));
+		//char lenArr = 0x053;
+//		byteOutPut.write(i);;
+		System.arraycopy(lenArr, 0, bts, 1, 2);
+		System.arraycopy(beforeSend,0, bts, 3, beforeSend.length);
+		bts[0]=0x02;
+//		bts[1]=0x00;
+//		bts[2]=0x92;
+		
+		bts[bts.length-1]=0x03;
+		System.out.println(Arrays.toString(bts));
+     	return bts;
 	}
 	
 	//生成前两个字节的长度位
@@ -217,10 +253,92 @@ public abstract class AbstractIsoMsgFactory {
 	//生成最后一位的MAC加密
 	protected abstract byte[] mac(IsoPackage isoPackage) throws Exception;
 	
-	//对返回的数据进行MAC校验
+	//对返回的数据进行MAC校验	
 	protected abstract void macValidate(IsoPackage isoPackage,Map<String,String> map);
 
     public void setMacKey(String macKey) {
         this.macKey = macKey;
     }
+    
+    public static byte[] Int2ByteArray(int iSource, int iArrayLen) {
+		byte[] bLocalArr = new byte[iArrayLen];
+		for ( int i = iArrayLen; (i < 4) && (i > 0); i--) {
+			bLocalArr[i-1] = (byte)( iSource>>8*(iArrayLen-i) & 0xFF );
+		}
+		return bLocalArr;
+	}
+    
+    public static byte[] str2Bcd(String asc) { 
+
+ int len = asc.length(); 
+
+ int mod = len % 2; 
+
+ if (mod != 0) { 
+
+ asc = "0" + asc; 
+
+len = asc.length(); 
+
+ } 
+
+ byte abt[] = new byte[len]; 
+
+  if (len >= 2) { 
+
+    len = len / 2; 
+
+     } 
+
+            byte bbt[] = new byte[len]; 
+
+           abt = asc.getBytes(); 
+
+            int j, k; 
+
+        for (int p = 0; p < asc.length() / 2; p++) { 
+
+               if ((abt[2 * p] >= '0') && (abt[2 * p] <= '9')) { 
+
+                    j = abt[2 * p] - '0'; 
+
+             } else if ((abt[2 * p] >= 'a') && (abt[2 * p] <= 'z')) { 
+
+                  j = abt[2 * p] - 'a' + 0x0a; 
+
+               } else { 
+
+                   j = abt[2 * p] - 'A' + 0x0a; 
+
+              } 
+
+              if ((abt[2 * p + 1] >= '0') && (abt[2 * p + 1] <= '9')) { 
+
+                 k = abt[2 * p + 1] - '0'; 
+
+            } else if ((abt[2 * p + 1] >= 'a') && (abt[2 * p + 1] <= 'z')) { 
+
+                 k = abt[2 * p + 1] - 'a' + 0x0a; 
+
+             } else { 
+
+                     k = abt[2 * p + 1] - 'A' + 0x0a; 
+
+                 } 
+
+               int a = (j << 4) + k; 
+
+                 byte b = (byte) a; 
+
+               bbt[p] = b; 
+
+                System.out.format("%02X\n", bbt[p]);
+
+           } 
+
+           return bbt; 
+
+       } 
+
+    
 }

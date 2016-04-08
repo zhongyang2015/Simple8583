@@ -11,6 +11,7 @@ public interface SimpleConstants {
 
 	
 //	public static String MSG_LENGTH = "MsgLength";
+	//public static String TOP = "top";
 	public static String MTI = "mti";
 	public static String TPDU = "tpdu";
 	public static String VERSION_NO = "VersionNo";

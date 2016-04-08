@@ -8,7 +8,7 @@ package com.simple8583.util;
  */
 public class EncodeUtil {
 
-    protected static final char[] HEX = new char[]{'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
+    protected static final char[] HEX = new char[]{'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
 
     protected static final char[] BINARY = new char[]{'0','1'};
 
@@ -138,7 +138,7 @@ public class EncodeUtil {
     	return accum.toString();
     }
     
-    public static String addBlankRight(String origStr,int length,String fill){
+    public static String addBlankRight(String origStr,int length,char fill){
     	if(length<=0){
     		return origStr;
     	}

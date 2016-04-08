@@ -146,8 +146,7 @@ public class IsoField implements Serializable{
 				this.value = this.value.substring(0, length);
 			} else if (value.length() < length) {
 				//将缺少的部分补全空格
-				this.value = EncodeUtil.addBlankRight(this.value, this.length
-						- value.getBytes(SimpleConstants.ENCODING).length, " ");
+				this.value = EncodeUtil.addBlankRight(this.value, this.length - value.getBytes(SimpleConstants.ENCODING).length,(char)0x00);
 			}
 			break;
 		}
