@@ -42,8 +42,8 @@ public abstract class AbstractClient {
 	public Map<String, String> sendToBank(Map<String, String> dataMap,
 			XmlReader xmlReader) throws Exception {
 		//单例
-		IsoMsgFactory factory = IsoMsgFactory.getInstance();
-		factory.setMacKey(macKey);
+		IsoMsgFactory factory = IsoMsgFactory.getInstance();//初始化工厂
+		factory.setMacKey(macKey);//设置签名mac秘钥
 		String mti = dataMap.get("mti");
 		IsoPackage pack = xmlReader.getIsoConfig().get(mti);
 		byte[] buf = null;
