@@ -5,6 +5,7 @@
 	
 	<!-- 统一头，每次不管请求还是响应都包含的共同内容 -->
     <header>
+    	<field id="top" type="NUMERIC" length="1"/>
         <field id="MsgLength" type="NUMERIC" length="2"/>
         <field id="tpdu" type="NUMERIC" length="5"/>
         <field id="VersionNo" type="NUMERIC" length="2"/>
@@ -142,11 +143,20 @@
         <field id="10" type="CHAR" length="8"/>
         <field id="11" type="CHAR" length="8"/>
         <field id="12" type="CHAR" length="11"/>
-        <field id="13" type="CHAR" length="20"/>
-        <field id="14" type="CHAR" length="3"/>
+        <field id="13" type="CHAR" length="9"/>
+        <field id="14" type="CHAR" length="4"/>
         <field id="15" type="CHAR" length="2"/>
         <field id="16" type="CHAR" length="25"/>
         <field id="17" type="CHAR" length="32"/>
+    </package>
+    
+    <!-- -->
+     <package mti="0800">
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="10" type="LLVAR"/>
+        <field id="32" type="CHAR" length="15" />
+        <field id="40" type="LLVAR"/>
+        <field id="64" type="BINARY" length="8" />
     </package>
     
 </simple8583-config>
