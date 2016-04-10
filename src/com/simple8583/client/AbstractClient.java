@@ -71,13 +71,13 @@ public abstract class AbstractClient {
 				byte[] lenbuf = new byte[2];
 				while (socket != null && socket.isConnected()) {
 					
-//					BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-//					String line;
-//					String ret="";
-//					while((line=reader.readLine())!=null){		
-//						ret+=line;
-//					}
-//					System.out.println(ret);
+					BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
+					String line;
+					String ret="";
+					while((line=reader.readLine())!=null){		
+						ret+=line;
+					}
+					System.out.println(EncodeUtil.hex(ret.getBytes("utf-8")));
 					if (socket.getInputStream().read(lenbuf) == 2) {
 						//计算前两位报文所表示的报文长度
 						int size = computeLength(lenbuf);

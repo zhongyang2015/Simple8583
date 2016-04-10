@@ -228,8 +228,7 @@ public abstract class AbstractIsoMsgFactory {
 		System.out.println(sth);
 		byte[] beforeSend = byteOutPut.toByteArray();//数据：tpdu+消息类型+bitmap+包体+mac
 		byte[] bts = new byte[beforeSend.length + 5];//数据包头（1）+数据包长度（2）+数据+数据包尾(1)+LRC(1)
-		//设置数据包头
-		bts[0]=0x02;
+		
 		//计算长度
 		byte[] lenArr = EncodeUtil.bcd(String.valueOf(beforeSend.length),2);
 		//设置包长
@@ -249,6 +248,8 @@ public abstract class AbstractIsoMsgFactory {
 		}
 		//设置LRC
 		bts[bts.length-1]=(byte)hy;
+		//设置数据包头
+		bts[0]=0x02;
 		System.out.println(Arrays.toString(bts));
      	return bts;
 	}

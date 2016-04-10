@@ -23,19 +23,7 @@ public class Simple8583Test {
         Map<String,String> requestMap = new HashMap<String,String>();
 
         
-//        requestMap.put(SimpleConstants.MTI,"0430");
-//        requestMap.put("15","SP99515061500104387");
-//        requestMap.put("13","张清源");
-//        requestMap.put("14","1567");
-//        requestMap.put("12","pay");
-//        requestMap.put("3","12M01041");   
-//        requestMap.put("2","470000");  
-//        requestMap.put("7","492500");
-//        requestMap.put("6","6228210250013865710");
-//        requestMap.put("5","04");
-//        requestMap.put("4","01041");
-//        requestMap.put("9","012");
-//        requestMap.put("8","SP99515061500104387");
+
         requestMap.put(SimpleConstants.MTI,"0800");
       //  requestMap.put(SimpleConstants.TOP,"02");
         requestMap.put(SimpleConstants.TPDU, "6000400000");
