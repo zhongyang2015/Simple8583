@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simple8583-config>
+
+	<!-- 长度全部都是字节数（由自己换算,LLVAR,LLLVAR,LLVAR_NUMERIC等变长数据域定义的长度无效） -->
+	
+	<!-- 统一头，每次不管请求还是响应都包含的共同内容 -->
+    <header>
+        <field id="top" type="NUMERIC" length="1"/>
+        <field id="MsgLength" type="NUMERIC" length="2"/><!-- 数据包长度 -->
+        <field id="tpdu" type="NUMERIC" length="5"/><!-- tpdu -->
+        <field id="mti" type="NUMERIC" length="2"/><!-- 消息类型 -->
+        <field id="BitMap" type="BINARY" length="8"/><!-- 位图 -->
+    </header>
+    
+ 	<!-- 注册硬件-->
+     <package mti="0800">
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="10" type="LLVAR"/>
+        <field id="32" type="CHAR" length="15" />
+        <field id="40" type="LLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+   
+    
+</simple8583-config>
