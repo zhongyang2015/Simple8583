@@ -1,5 +1,5 @@
-package com.simple8583.client;
 
+package com.simple8583.client;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;

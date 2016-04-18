@@ -58,12 +58,7 @@ public class SH_BCM_BusinessApi {
 	
 /********************** 测 试 方 法  *****************************/
     public static void main(String[] args) throws Exception {
-    	 //注册测试 OK
-         Registered r = new Registered();
-         r.setMechanismNo("01");
-         r.setOperatorId("01");
-         r.setSerialNo("18200000100000300000745");
-         registered(r,initMacKey);
+    
     }  
 
     

@@ -325,6 +325,8 @@ public abstract class AbstractIsoMsgFactory {
 		bts[0]=0x02;
 		//设置LRC
 		bts[bts.length-1]=(byte)hy;
+		//设置数据包头
+		bts[0]=0x02;
 		System.out.println(Arrays.toString(bts));
      	return bts;
 	}
