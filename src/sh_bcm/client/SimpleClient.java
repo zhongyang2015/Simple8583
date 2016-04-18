@@ -1,4 +1,4 @@
-package com.simple8583.client;
+package sh_bcm.client;
 
 import com.simple8583.util.EncodeUtil;
 

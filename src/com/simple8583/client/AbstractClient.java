@@ -1,14 +1,9 @@
-package com.simple8583.client;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
+package com.simple8583.client;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.Map;
-
-
 
 import com.simple8583.exception.Simple8583Exception;
 import com.simple8583.factory.IsoMsgFactory;
@@ -52,9 +47,11 @@ public abstract class AbstractClient {
 		String mti = dataMap.get("mti");
 		IsoPackage pack = xmlReader.getIsoConfig().get(mti);
 		byte[] buf = null;
+		byte[] all = null;
 		try {
 
 			byte[] sendData = factory.pack(dataMap, pack);
+
 			Socket socket = new Socket();
 			InetAddress inetAddress = InetAddress.getByName(this.ip);
 			InetSocketAddress address = new InetSocketAddress(inetAddress, port);
@@ -68,28 +65,25 @@ public abstract class AbstractClient {
 				socket.getOutputStream().write(sendData);
 				socket.getOutputStream().flush();
 				//两字节长度
-				byte[] lenbuf = new byte[2];
+				byte[] lenbuf = new byte[3];
+				
 				while (socket != null && socket.isConnected()) {
-					
-					BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
-					String line;
-					String ret="";
-					while((line=reader.readLine())!=null){		
-						ret+=line;
-					}
-					System.out.println(EncodeUtil.hex(ret.getBytes("utf-8")));
-					if (socket.getInputStream().read(lenbuf) == 2) {
-						//计算前两位报文所表示的报文长度
-						int size = computeLength(lenbuf);
+					if (socket.getInputStream().read(lenbuf) == 3) {
+						//计算报文所表示的报文长度(第二第三字节)
+						int size = computeLength(lenbuf)+2;
 						//新建对应长度字节数组
 						buf = new byte[size];
-						//读取数据
+						//读取从第4个字节到最后的数据
 						socket.getInputStream().read(buf);
+						//拼接整个返回报文从头到尾 top一个字节，尾部一个字节，LRC一个字节，共3字节
+						all = new byte[size+3];
+						System.arraycopy(lenbuf, 0, all, 0, 3);//数据包包头和包长度，复制到1-3位
+						System.arraycopy(buf,0, all, 3, buf.length);//把数据放到4-leng+4
 						break;
 					}
 				}
 				
-				System.out.println(EncodeUtil.hex(buf));
+				System.out.println(EncodeUtil.hex(all));
 			} finally {
 				if (socket != null) {
 					try {
@@ -107,7 +101,7 @@ public abstract class AbstractClient {
 		//将前面的MsgLength域剔除
 		pack.remove(0);
 		//根据IsoPackage的结构解析接受到的报文
-		return factory.unpack(buf, pack);
+		return factory.unpack(all, pack);
 	}
 	
 	protected abstract int computeLength(byte[] lenBts);

@@ -1,4 +1,4 @@
-package com.simple8583.model;
+package sh_bcm.model;
 
 import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
