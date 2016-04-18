@@ -1,4 +1,4 @@
-package com.simple8583.util.encrypt;
+package sh_bcm.util.encrypt;
 
 
 import java.io.UnsupportedEncodingException;

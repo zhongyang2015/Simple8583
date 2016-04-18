@@ -1,4 +1,4 @@
-package com.simple8583.client;
+package sh_bcm.client;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
