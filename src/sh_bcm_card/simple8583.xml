@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simple8583-config>
+
+	<!-- 长度全部都是字节数（由自己换算,LLVAR,LLLVAR,LLVAR_NUMERIC等变长数据域定义的长度无效） -->
+	
+	<!-- 统一头，每次不管请求还是响应都包含的共同内容 -->
+    <header>
+    	<field id="top" type="NUMERIC" length="1"/>
+        <field id="MsgLength" type="NUMERIC" length="2"/>
+        <field id="tpdu" type="NUMERIC" length="5"/>
+        <field id="mti" type="NUMERIC" length="2"/>
+        <field id="BitMap" type="BINARY" length="8"/>
+    </header>
+
+
+    
+    <!---->
+     <package mti="0820">
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="11" type="NUMERIC" length="3"/>
+        <field id="12" type="NUMERIC" length="3"/>
+        <field id="13" type="NUMERIC" length="2"/>
+        <field id="14" type="NUMERIC" length="2"/>
+        <field id="25" type="NUMERIC" length="1"/>
+        <field id="28" type="CHAR" length="1"/>
+        <field id="37" type="CHAR" length="12" />
+        <field id="39" type="CHAR" length="2" />
+        <field id="41" type="CHAR" length="8"/>
+        <field id="42" type="CHAR" length="15"/>
+        <field id="43" type="LLLVAR" />
+        <field id="44" type="LLVAR"/>
+        <field id="60" type="LLLVAR" />
+        <field id="61" type="LLLVAR"/>
+        <field id="62" type="LLLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+     <package mti="0200"><!-- 其中22域 和53域 可能有问题，需比对报文修改 -->
+     	<field id="2" type="LLVAR"/>
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="4" type="NUMERIC" length="6"/>
+        <field id="11" type="NUMERIC" length="3"/>
+        <field id="12" type="NUMERIC" length="3"/>
+        <field id="13" type="NUMERIC" length="2"/>
+        <field id="14" type="NUMERIC" length="2"/>
+        <field id="22" type="NUMERIC" length="2"/>
+        <field id="25" type="NUMERIC" length="1"/>
+        <field id="35" type="LLVAR"/>
+        <field id="36" type="LLLVAR"/>
+        <field id="37" type="CHAR" length="12" />
+        <field id="38" type="CHAR" length="6" />
+        <field id="39" type="CHAR" length="2" />
+        <field id="41" type="CHAR" length="8"/>
+        <field id="42" type="CHAR" length="15"/>
+        <field id="44" type="LLVAR"/>
+        <field id="49" type="CHAR" length="3"/>
+        <field id="52" type="NUMERIC" length="8"/>
+        <field id="53" type="NUMERIC" length="8"/>
+        <field id="54" type="LLLVAR" length="3"/>
+        <field id="60" type="LLLVAR" />
+        <field id="61" type="LLLVAR"/>
+        <field id="62" type="LLLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+    <package mti="0400"><!-- 其中22，23域 和53域 可能有问题，需比对报文修改 -->
+     	<field id="2" type="LLVAR"/>
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="4" type="NUMERIC" length="6"/>
+        <field id="11" type="NUMERIC" length="3"/>
+        <field id="12" type="NUMERIC" length="3"/>
+        <field id="13" type="NUMERIC" length="2"/>
+        <field id="14" type="NUMERIC" length="2"/>
+        <field id="22" type="NUMERIC" length="2"/>
+        <field id="23" type="NUMERIC" length="2"/>
+        <field id="25" type="NUMERIC" length="1"/>
+        <field id="35" type="LLVAR"/>
+        <field id="36" type="LLLVAR"/>
+        <field id="37" type="CHAR" length="12" />
+        <field id="38" type="CHAR" length="6" />
+        <field id="39" type="CHAR" length="2" />
+        <field id="41" type="CHAR" length="8"/>
+        <field id="42" type="CHAR" length="15"/>
+        <field id="44" type="LLVAR"/>
+        <field id="49" type="CHAR" length="3"/>
+        <field id="52" type="NUMERIC" length="8"/>
+        <field id="53" type="NUMERIC" length="8"/>
+        <field id="55" type="LLLVAR"/>
+        <field id="60" type="LLLVAR" />
+        <field id="61" type="LLLVAR"/>
+        <field id="62" type="LLLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+</simple8583-config>
