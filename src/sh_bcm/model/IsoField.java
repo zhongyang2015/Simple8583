@@ -7,9 +7,11 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 
-import com.simple8583.key.SimpleConstants;
-import com.simple8583.util.EncodeUtil;
-import com.simple8583.util.SimpleUtil;
+import sh_bcm.key.SimpleConstants;
+import sh_bcm.util.EncodeUtil;
+import sh_bcm.util.SimpleUtil;
+
+
 
 /**
  * <p>报文域详情.</p>

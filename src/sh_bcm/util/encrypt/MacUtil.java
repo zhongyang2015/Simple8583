@@ -2,15 +2,11 @@ package sh_bcm.util.encrypt;
 
 
 import java.io.UnsupportedEncodingException;
-import java.security.SecureRandom;
 import java.util.Random;
 
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.DESKeySpec;
+import sh_bcm.util.EncodeUtil;
 
-import com.simple8583.util.EncodeUtil;
+
 
 /**
  * <p>DES加密类</p>

@@ -1,6 +1,8 @@
 package sh_bcm.client;
 
-import com.simple8583.util.EncodeUtil;
+import sh_bcm.util.EncodeUtil;
+
+
 
 
 /**

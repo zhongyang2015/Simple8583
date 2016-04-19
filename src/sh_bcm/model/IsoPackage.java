@@ -1,14 +1,17 @@
 package sh_bcm.model;
 
-import com.simple8583.util.SimpleUtil;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import java.io.*;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * <p>8583报文包.</p>

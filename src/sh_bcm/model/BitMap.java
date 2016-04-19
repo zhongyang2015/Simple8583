@@ -3,7 +3,9 @@ package sh_bcm.model;
 import java.lang.IllegalArgumentException;
 import java.util.List;
 
-import com.simple8583.util.EncodeUtil;
+import sh_bcm.util.EncodeUtil;
+
+
 
 /**
  * <p>位图类.</p>
