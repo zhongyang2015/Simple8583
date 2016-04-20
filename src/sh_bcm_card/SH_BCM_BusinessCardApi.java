@@ -21,6 +21,8 @@ import sh_bcm_card.entity.Revocation;
 import sh_bcm_card.entity.Sign;
 import sh_bcm_card.factory.XmlReader;
 import sh_bcm_card.key.SimpleConstants;
+import sh_bcm_card.util.AnsixUtil;
+import sh_bcm_card.util.EncodeUtil;
 
 import com.google.common.base.Strings;
 
@@ -319,6 +321,9 @@ public class SH_BCM_BusinessCardApi {
 		if(!Strings.isNullOrEmpty(inquire.getPassWord())){
 			//TODO
 			//ANSI X9.8标准加密---根据53域 来判断他是带主账号还是不带主账号
+			//ANSI X9.8标准加密-带主账号
+			String pas = AnsixUtil.process(inquire.getPassWord(), "填加密主账号");//FIXME
+			requestMap.put("52",pas);//个人密码密文
 			
 		}
 		if(!Strings.isNullOrEmpty(inquire.getSecurityMsg())){
@@ -455,6 +460,9 @@ public class SH_BCM_BusinessCardApi {
 				if(!Strings.isNullOrEmpty(con.getPassWord())){
 					//TODO
 					//ANSI X9.8标准加密---根据53域 来判断他是带主账号还是不带主账号
+					//ANSI X9.8标准加密-带主账号
+					String pas = AnsixUtil.process(con.getPassWord(), "填加密主账号");//FIXME
+					requestMap.put("52",pas);//个人密码密文
 					
 				}
 				if(!Strings.isNullOrEmpty(con.getSecurityMsg())){
@@ -593,6 +601,9 @@ public class SH_BCM_BusinessCardApi {
 		if(!Strings.isNullOrEmpty(revo.getPassWord())){
 			//TODO
 			//ANSI X9.8标准加密---根据53域 来判断他是带主账号还是不带主账号
+			//ANSI X9.8标准加密-带主账号
+			String pas = AnsixUtil.process(revo.getPassWord(), "填加密主账号");//FIXME
+			requestMap.put("52",pas);//个人密码密文
 			
 		}
 		if(!Strings.isNullOrEmpty(revo.getSecurityMsg())){
@@ -730,6 +741,9 @@ public class SH_BCM_BusinessCardApi {
 				if(!Strings.isNullOrEmpty(reversal.getPassWord())){
 					//TODO
 					//ANSI X9.8标准加密---根据53域 来判断他是带主账号还是不带主账号
+					//ANSI X9.8标准加密-带主账号
+					String pas = AnsixUtil.process(reversal.getPassWord(), "填加密主账号");//FIXME
+					requestMap.put("52",pas);//个人密码密文
 					
 				}
 				if(!Strings.isNullOrEmpty(reversal.getSecurityMsg())){
@@ -840,4 +854,5 @@ public class SH_BCM_BusinessCardApi {
 		
 		return map;
 	}
+	
 }
