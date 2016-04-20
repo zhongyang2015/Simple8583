@@ -56,14 +56,92 @@ public class SH_BCM_BusinessCardApi {
 	
 /********************** 测 试 方 法  *****************************/
     public static void main(String[] args) throws Exception {
-    	Sign s = new Sign();
-    	s.setPosNo("000001");
-    	s.setBusinessNo("222");
-    	s.setTerminalNo("223");
-    	s.setConditionCode("00");
-    	s.setOperator("012222");
-    	s.setCredentials("0000000000");
-    	sign(s,"1234567890abcdef");
+    	//签到
+//    	Sign s = new Sign();
+//    	s.setPosNo("000001");
+//    	s.setBusinessNo("222");
+//    	s.setTerminalNo("223");
+//    	s.setConditionCode("00");
+//    	s.setOperator("012222");
+//    	s.setCredentials("0000000000");
+//    	sign(s,"1234567890abcdef");
+
+    //退签	
+//    	BackSign b = new BackSign();
+//    	b.setPosNo("000001");
+//    	b.setConditionCode("00");
+//    	b.setTerminalNo("223");
+//    	b.setBusinessNo("222");
+//    	b.setOperator("012222");
+//    	b.setBatch("123");
+//    	backSign(b,"1234567890abcdef");
+    	
+    	//积分折抵比例查询
+//    	Inquire in = new Inquire();
+//    	in.setIDcard("420204198709221342");
+//    	in.setMoney("1");
+//    	in.setPosNo("000001");
+//    	in.setInput("021");
+//    	in.setTwoTracks("1231231231231");
+//    	in.setThreeTracks("12312312312312");
+//    	in.setConditionCode("00");
+//    	in.setBusinessNo("222");
+//    	in.setTerminalNo("223");
+//    	in.setCurrencyCode("156");
+//    	in.setOperator("012222");
+//    	in.setCredentials("00");
+//    	in.setBillNum("222222111111");
+//    	inquire(in,"1234567890abcdef");
+    	
+    	//消费
+//    	Consumption con = new Consumption();
+//    	con.setIDcard("420204198709221342");
+//    	con.setMoney("1");
+//    	con.setPosNo("000001");
+//    	con.setInput("012");
+//    	con.setTwoTracks("1231231231231");
+//    	con.setThreeTracks("12312312312312");
+//    	con.setConditionCode("00");
+//    	con.setBusinessNo("222");
+//    	con.setTerminalNo("223");
+//    	con.setCurrencyCode("156");
+//    	con.setOperator("012222");
+//    	con.setCredentials("00");
+//    	con.setBillNum("222222111111");
+//    	consumption(con,"1234567890abcdef");
+    	
+    	//撤销
+//    	Revocation re = new Revocation();
+//    	re.setIDcard("420204198709221342");
+//    	re.setMoney("1");
+//    	re.setPosNo("000001");
+//    	re.setInput("012");
+//    	re.setAuthorizeNum("232");
+//    	re.setConditionCode("00");
+//    	re.setBusinessNo("222");
+//    	re.setTerminalNo("223");
+//    	re.setCurrencyCode("156");
+//    	re.setOperator("012222");
+//    	re.setCredentials("00");
+//    	re.setBillNum("222222111111");
+//    	revocation(re,"1234567890abcdef");
+    	
+    	//冲正
+    	Reversal re = new Reversal();
+    	re.setIDcard("420204198709221342");
+    	re.setMoney("1");
+    	re.setPosNo("000001");
+    	re.setInput("012");
+    	re.setAuthorizeNum("232");
+    	re.setConditionCode("00");
+    	re.setBusinessNo("222");
+    	re.setTerminalNo("223");
+    	re.setCurrencyCode("156");
+    	re.setOperator("012222");
+    	re.setCredentials("00");
+    	re.setBillNum("222222111111");
+    	re.setProcessingCode("200005");
+    	reversal(re,"1234567890abcdef");
     }  
 
     
