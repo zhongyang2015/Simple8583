@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simple8583-config>
+
+	<!-- 长度全部都是字节数（由自己换算,LLVAR,LLLVAR,LLVAR_NUMERIC等变长数据域定义的长度无效） -->
+	
+	<!-- 统一头，每次不管请求还是响应都包含的共同内容 -->
+    <header>
+    	<field id="top" type="NUMERIC" length="1"/>
+        <field id="MsgLength" type="NUMERIC" length="2"/>
+        <field id="tpdu" type="NUMERIC" length="5"/>
+        <field id="mti" type="NUMERIC" length="2"/>
+        <field id="BitMap" type="BINARY" length="8"/>
+    </header>
+
+
+    
+    <!--注册 -->
+     <package mti="0800">
+     	<field id="2" type="LLVAR_NUMERIC"/>
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="4" type="NUMERIC" length="6"/>
+        <field id="7" type="LLVAR_NUMERIC"/>
+        <field id="8" type="NUMERIC" length="6"/>
+        <field id="9" type="NUMERIC" length="5"/>
+        <field id="10" type="LLVAR"/>
+        <field id="11" type="NUMERIC" length="3"/>
+        <field id="12" type="NUMERIC" length="3"/>
+        <field id="13" type="NUMERIC" length="4"/>
+        <field id="14" type="NUMERIC" length="4"/>
+        <field id="15" type="NUMERIC" length="4"/>
+        <field id="16" type="NUMERIC" length="4"/>
+        <field id="22" type="NUMERIC" length="1"/>
+        <field id="24" type="NUMERIC" length="1"/>
+        <field id="32" type="CHAR" length="15" />
+        <field id="35" type="LLVAR" />
+        <field id="37" type="NUMERIC" length="5"/>
+        <field id="38" type="NUMERIC" length="5"/>
+        <field id="39" type="CHAR" length="2" />
+        <field id="40" type="LLVAR"/>
+        <field id="41" type="CHAR" length="8"/>
+        <field id="42" type="CHAR" length="15"/>
+        <field id="43" type="NUMERIC" length="11"/>
+        <field id="44" type="LLLVAR"/>
+        <field id="45" type="CHAR" length="32"/>
+        <field id="48" type="LLVAR"/>
+        <field id="52" type="NUMERIC" length="8"/>
+        <field id="55" type="LLLVAR"/>
+        <field id="59" type="NUMERIC" length="5"/>
+        <field id="60" type="NUMERIC" length="3"/>
+        <field id="62" type="LLLVAR"/>
+        <field id="63" type="LLLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+     <package mti="0600">
+     	<field id="2" type="LLVAR_NUMERIC"/>
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="4" type="NUMERIC" length="6"/>
+        <field id="7" type="LLVAR_NUMERIC"/>
+        <field id="10" type="LLVAR"/>
+        <field id="11" type="NUMERIC" length="3"/>
+        <field id="12" type="NUMERIC" length="3"/>
+        <field id="13" type="NUMERIC" length="4"/>
+        <field id="14" type="NUMERIC" length="4"/>
+        <field id="15" type="NUMERIC" length="4"/>
+        <field id="22" type="NUMERIC" length="1"/>
+        <field id="24" type="NUMERIC" length="1"/>
+        <field id="32" type="CHAR" length="15" />
+        <field id="35" type="LLVAR" />
+        <field id="37" type="CHAR" length="12"/>
+        <field id="38" type="CHAR" length="6"/>
+        <field id="39" type="CHAR" length="2" />
+        <field id="40" type="LLVAR"/>
+        <field id="41" type="CHAR" length="8"/>
+        <field id="42" type="CHAR" length="15"/>
+        <field id="43" type="NUMERIC" length="11"/>
+        <field id="44" type="LLLVAR"/>
+        <field id="45" type="CHAR" length="32"/>
+        <field id="48" type="LLVAR"/>
+        <field id="49" type="CHAR" length="4"/>
+        <field id="52" type="NUMERIC" length="8"/>
+        <field id="59" type="NUMERIC" length="3"/>
+        <field id="60" type="NUMERIC" length="3"/>
+        <field id="62" type="LLLVAR"/>
+        <field id="63" type="LLLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+    <package mti="0400">
+     	<field id="2" type="LLVAR_NUMERIC"/>
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="4" type="NUMERIC" length="6"/>
+        <field id="7" type="LLVAR_NUMERIC"/>
+        <field id="10" type="LLVAR"/>
+        <field id="11" type="NUMERIC" length="3"/>
+        <field id="12" type="NUMERIC" length="3"/>
+        <field id="13" type="NUMERIC" length="4"/>
+        <field id="14" type="NUMERIC" length="4"/>
+        <field id="15" type="NUMERIC" length="4"/>
+        <field id="22" type="NUMERIC" length="1"/>
+        <field id="24" type="NUMERIC" length="1"/>
+        <field id="32" type="CHAR" length="15" />
+        <field id="35" type="LLVAR" />
+        <field id="37" type="CHAR" length="12"/>
+        <field id="38" type="CHAR" length="6"/>
+        <field id="39" type="CHAR" length="2" />
+        <field id="40" type="LLVAR"/>
+        <field id="41" type="CHAR" length="8"/>
+        <field id="42" type="CHAR" length="15"/>
+        <field id="43" type="NUMERIC" length="11"/>
+        <field id="44" type="LLLVAR"/>
+        <field id="45" type="CHAR" length="32"/>
+        <field id="48" type="LLVAR"/>
+        <field id="49" type="CHAR" length="4"/>
+        <field id="52" type="NUMERIC" length="8"/>
+        <field id="59" type="NUMERIC" length="3"/>
+        <field id="60" type="NUMERIC" length="3"/>
+        <field id="62" type="LLLVAR"/>
+        <field id="63" type="LLLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+     <package mti="0500">
+        <field id="3" type="NUMERIC" length="3"/>
+        <field id="10" type="LLVAR"/>
+        <field id="12" type="NUMERIC" length="3"/>
+        <field id="13" type="NUMERIC" length="4"/>
+        <field id="32" type="CHAR" length="15" />
+        <field id="35" type="LLVAR" />
+        <field id="39" type="CHAR" length="2" />
+        <field id="40" type="LLVAR"/>
+        <field id="41" type="CHAR" length="8"/>
+        <field id="42" type="CHAR" length="15"/>
+        <field id="43" type="NUMERIC" length="11"/>
+        <field id="44" type="LLLVAR"/>
+        <field id="45" type="CHAR" length="32"/>
+        <field id="60" type="NUMERIC" length="3"/>
+        <field id="62" type="LLLVAR"/>
+        <field id="64" type="BINARY" length="8" />
+    </package>
+</simple8583-config>
