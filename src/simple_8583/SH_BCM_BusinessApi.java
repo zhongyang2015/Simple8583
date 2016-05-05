@@ -1,17 +1,14 @@
 package simple_8583;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
 import org.apache.log4j.Logger;
-
-import simple_8583.entity.Billing;
-import simple_8583.entity.Registered;
-import simple_8583.entity.Rekey;
-import simple_8583.entity.Sign;
-import simple_8583.entity.Verification;
+import simple_8583.key.SimpleConstants;
 import simple_8583.util.EncodeUtil;
-import simple_8583.util.SetParam;
+
+import com.google.common.base.Strings;
 
 
 /**
@@ -47,315 +44,105 @@ public class SH_BCM_BusinessApi {
 	public static String MSG_TYPEC = "0500";
 	public static String MSG_TYPED = "0400";
 	
-	//此部分数据在实际中应该是固定的
-	static String mechanismNo = "01";
+	//
+	static String mechanismNo = "01";//受理方机构编号
 	static String operatorId = "01";
-	static String serialNo = "18200000100000300000745";
+	static String serialNo = "18200000100000300000745";//终端硬件序列号
 	
-/********************** 测 试 方 法  *****************************/
-	//调用接口获取的重要参数
-	static String newMacKey = null;//mac密钥
-	static String masterKey = null;//主密钥
-	static String terminalNo = null;//终端号
-	static String businessNo = null;//商户号
-	static String beach = null;//批次号
-	static String terminalNum = null;//流水号
-	static String acceptedTime = null;//交易时间
-	static String acceptedDate = null;//交易日期
+	static String terminalNo = "00000751";//终端编号
+	static String businessNo = "182000001000003";//商户编号
+	static String version = "1.3.22";//版本
+	static String masterKey = "2FB728A6271D2708";//主密钥
+	static String macKey = "03D6E0072AC17EEF";//新mac密钥
+	static String beachNo = "000002";//批次号
+	static String couponCode = "1816004030201940";//券码
+	static String num = "000953";//流水号
+	static String amount = "1";//金额/数量
+	static String acceptedTime = "172159";//兑换受理时间
+	static String acceptedDate = "20160505";//兑换受理日期
+	static String billData = "";//结算数据
 	
-	
-	public static void zhuche(){
-		Map<String, String> requestMap = new HashMap<String, String>();
-    	Registered r = new Registered();
-    	r.setMechanismNo(mechanismNo);
-		r.setOperatorId(operatorId);
-		r.setSerialNo(serialNo);
-		//注册获取终端号，商户号
-		requestMap = registered(r, initMacKey);
-		if(ReturnCode.success.equals(requestMap.get("39"))){
-			terminalNo = requestMap.get("41");//终端号
-			businessNo = requestMap.get("42");//商户号
-		}else if(ReturnCode.macError.equals(requestMap.get("39"))){
-			// TODO
-			System.out.println("mac校验失败");
-		}else{
-			// TODO 失败处理
-		}
-		
-	}
-	public static void chongzhi(){
-		Rekey re = new Rekey();
-		re.setMechanismNo(mechanismNo);
-		re.setOperatorId(operatorId);
-		re.setSerialNo(serialNo);
-		re.setTerminalNo(terminalNo);
-		re.setBusinessNo(businessNo);
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = rekey(re, initMacKey);
-		if(ReturnCode.success.equals(requestMap.get("39"))){
-			newMacKey = requestMap.get("newMacKey");
-			masterKey = requestMap.get("masterKey");
-		}else if(ReturnCode.macError.equals(requestMap.get("39"))){
-			// TODO
-			System.out.println("mac校验失败");
-		}else{
-			// TODO 失败处理
-		}
-		
-	}
-	public static void qiandao(){
-		Sign sign = new Sign();
-		sign.setMechanismNo(mechanismNo);
-		sign.setOperatorId(operatorId);
-		sign.setSerialNo(serialNo);
-		sign.setTerminalNo(terminalNo);
-		sign.setBusinessNo(businessNo);
-		sign.setVersion("1.3.22");//版本号
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = login(sign, newMacKey, masterKey);
-		
-		if(ReturnCode.success.equals(requestMap.get("39"))){
-			newMacKey = requestMap.get("newMacKey");
-			terminalNum = requestMap.get("11");//流水号
-			beach = requestMap.get("60");
-		}
-		else if(ReturnCode.registerAgainA.equals(requestMap.get("39"))||ReturnCode.registerAgainB.equals(requestMap.get("39"))){//应答码  如果是90和F1则需要重新注册 密钥重置
-			// TODO 需要重新注册 密钥重置
-		}else if(ReturnCode.macError.equals(requestMap.get("39"))){
-			// TODO 重新签到
-			System.out.println("mac校验失败");
-		}else{
-			// TODO 当异常处理
-		}
-		
-	}
-	public static void duihuan(){
-		Verification ve = new Verification();
-		ve.setMoney("1");//兑换券张数
-		ve.setMechanismNo(mechanismNo);
-		//流水号加1处理
-		String num = String.valueOf((Integer.valueOf(terminalNum)+1));
-		if(num.length()<7){
-			int t = 6-num.length();
-			for(int j=0;j<t;j++){ 
-				num ="0"+num; 
-				} 
-		}		
-		ve.setTerminalNum(num);
-		ve.setOperatorId(operatorId);
-		ve.setSerialNo(serialNo);
-		ve.setTerminalNo(terminalNo);
-		ve.setBusinessNo(businessNo);
-		ve.setBatch(beach);
-		ve.setCouponCode("1816004030201940");//券码号
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = verification(ve,newMacKey);
-		String code = requestMap.get("39");// 返回码等于40时候 为无效券码// 返回码等于45时 可用次数不足//A0mac校验失败 //应答码  如果是90和F1则需要重新注册 密钥重置
-		if(ReturnCode.success.equals(requestMap.get("39"))){
-			acceptedTime = requestMap.get("12");//交易时间
-			acceptedDate = requestMap.get("13");//交易日期
-			terminalNum = requestMap.get("11");//流水号
-			beach = requestMap.get("60");//批次号
-		}else if(ReturnCode.errorCode.equals(requestMap.get("39"))){
-			System.out.println("无效券码");
-		}
-		else if(ReturnCode.noTimes.equals(requestMap.get("39"))){
-			System.out.println("可用次数不足");
-		}
-		else if(ReturnCode.registerAgainA.equals(requestMap.get("39"))||ReturnCode.registerAgainB.equals(requestMap.get("39"))){//应答码  如果是90和F1则需要重新注册 密钥重置
-			// TODO 需要重新注册 密钥重置
-		}else if(ReturnCode.macError.equals(requestMap.get("39"))){
-			// TODO 重新签到
-			System.out.println("mac校验失败");
-		}else{
-			// TODO 当异常处理  需要冲正处理
-		}
-		
-	}
-	
-	public static void jiesuan(){
-		Billing bi = new Billing();
-        bi.setMechanismNo(mechanismNo);
-        bi.setOperatorId(operatorId);
-        bi.setSerialNo(serialNo);
-        bi.setTerminalNo(terminalNo);
-        bi.setBusinessNo(businessNo);
-        bi.setBatch(beach);
-        bi.setBillingData("100510000000000000000000000000020000000000000000000200000000000000000000000000000000000000000000000000000000000000000000");
-        Map<String, String> requestMap = new HashMap<String, String>();
-        requestMap = billing(bi,newMacKey);
-		String code = requestMap.get("39");//应答码  如果是90和F1则需要重新注册 密钥重置
-		if(ReturnCode.success.equals(requestMap.get("39"))){
-			// TODO退签 重新签到
-		}
-		else if(ReturnCode.registerAgainA.equals(requestMap.get("39"))||ReturnCode.registerAgainB.equals(requestMap.get("39"))){//应答码  如果是90和F1则需要重新注册 密钥重置
-			// TODO 需要重新注册 密钥重置
-		}else if(ReturnCode.macError.equals(requestMap.get("39"))){
-			// TODO 重新签到
-			System.out.println("mac校验失败");
-		}else{
-			// TODO 当异常处理
-		}
-	}
-	
-	public static void chongzheng(){
-		Verification ve = new Verification();
-		ve.setMoney("1");
-		ve.setMechanismNo(mechanismNo);
-		ve.setTerminalNum(terminalNum);
-		ve.setOperatorId(operatorId);
-		ve.setSerialNo(serialNo);
-		ve.setTerminalNo(terminalNo);
-		ve.setBusinessNo(businessNo);
-		ve.setBatch(beach);
-		ve.setCouponCode("1816004030201940");//券码
-		ve.setAcceptedDate(acceptedDate);
-		ve.setAcceptedTime(acceptedTime);
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = reversal(ve,newMacKey);
-		String code = requestMap.get("39");//如果是90和F1则需要重新注册 密钥重置
-		if(ReturnCode.success.equals(requestMap.get("39"))){
-			// TODO 冲正成功
-		}
-		else if(ReturnCode.registerAgainA.equals(requestMap.get("39"))||ReturnCode.registerAgainB.equals(requestMap.get("39"))){//应答码  如果是90和F1则需要重新注册 密钥重置
-			// TODO 需要重新注册 密钥重置
-		}else if(ReturnCode.macError.equals(requestMap.get("39"))){
-			// TODO 重新签到
-			System.out.println("mac校验失败");
-		}else{
-			// TODO 当异常处理
-		}
-	}
-    public static void main(String[] args) throws Exception {
-    	
-  //------
-    	 zhuche();
-    	 chongzhi();
-    	 qiandao();
-    	// jiesuan();
-    	 duihuan();
-    	// chongzheng();
-    	
-		// 注册测试 OK
-		/*Registered r = new Registered();
-		r.setMechanismNo("01");
-		r.setOperatorId("01");
-		r.setSerialNo("18200000100000300000745");
-		registered(r, initMacKey);*/
-         
-		// 密钥重置 OK
-/*		Rekey re = new Rekey();
-		re.setMechanismNo("01");
-		re.setOperatorId("01");
-		re.setSerialNo("18200000100000300000745");
-		re.setTerminalNo("00000751");
-		re.setBusinessNo("182000001000003");
-		rekey(re, initMacKey);*/
-		
-		// 签到测试 签到之后要返回批次号
-/*		Sign sign = new Sign();
-		sign.setMechanismNo("01");
-		sign.setOperatorId("01");
-		sign.setSerialNo("18200000100000300000745");
-		sign.setTerminalNo("00000751");
-		sign.setBusinessNo("182000001000003");
-		sign.setVersion("1.3.22");
-		login(sign, "526386FD707A5F7A", "22073E3C31712528");*/
-		
-		// 兑换 11域名流水号不能重复+1处理(券码输入只支持16位和12位券码)
-		// 返回码等于40时候 为无效券码
-		// 返回码等于45时 可用次数不足
-		/*Verification ve = new Verification();
-		ve.setMoney("1");
-		ve.setMechanismNo("01");
-		ve.setTerminalNum("000926");
-		ve.setOperatorId("01");
-		ve.setSerialNo("18200000100000300000745");
-		ve.setTerminalNo("00000751");
-		ve.setBusinessNo("182000001000003");
-		ve.setBatch("000001");
-		ve.setCouponCode("1816004030201940");
-		ve.setAcceptedDate("20160425");
-		ve.setAcceptedTime("161357");
-		//verification(ve,"161604EC2631BE1A");
-		
-		reversal(ve,"161604EC2631BE1A");*/
-    }  
-
-    
-    
-/********************** 业 务 接 口  实 现  ****************************/
-    /**
-     * 注册接口
-     * @param requestMap
-     * @return
-     */
-	public static Map<String, String> registered(Registered regis,String macKey) {
-		//--参数验证,参数设置
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = SetParam.setRegisteredParam(regis);
-		if(requestMap==null){
-			log.info("requestMap is null");
+	//---------------------对应接口实现区------------------------------------		
+	/**
+	 * 
+	 *@描述  ：注册接口
+	 *@创建人：zhongy
+	 *@创建时间：2016年5月2日 下午6:46:17
+	 *@修改人：
+	 *@修改时间：
+	 *@修改描述：
+	 *@param operatorId 操作员编号
+	 *@param mechanismNo 受理方机构编号
+	 *@param serialNo 终端硬件序列号
+	 *@param key mac秘钥
+	 *@return 
+	 */
+	public static Map<String,String> registered(String operatorId,String mechanismNo,String serialNo,String key){
+		System.out.println("[注册]--------------");//XXX
+		//获取对应的发送数据
+		Map<String,String> dataMap = getRegisteredMsg(operatorId, mechanismNo, serialNo);
+		if(dataMap==null){
+			log.info("getRegisteredMsg error");
 			return null;
 		}
-		//--读取配置文件组织报文
-		byte[] sendData = InterfaceAPI.getPackets(requestMap, macKey, configUrl);
-		System.out.println("发送的报文：" + EncodeUtil.hex(sendData));// 将报文用16进制打印出来
-		//--发送报文获得返回的字节数组
-		byte[] backData = InterfaceAPI.sendPackets(sendData, ip, port, timeout);
-		System.out.println("返回的报文：" + EncodeUtil.hex(backData));// 将报文用16进制打印出来
-		//--解析返回的数组返回一个map
-    	Map<String, String> resultMap = InterfaceAPI.resolve(backData, requestMap, configUrl);
-    	
+    	//获取返回信息resultMap
+    	Map<String, String> resultMap = readAndSend(dataMap,key);
+    	if(resultMap==null){
+    		return null;
+    	}
 		// 获取返回报文的应答码 "00"表示成功
 		String replyCode = resultMap.get("39");// 此域为应答码
 		if ("00".equals(replyCode)) {
-			//******************* 返回获取的信息 *******************************************************//
-			resultMap.get("12");// 受理时间 hh:mm:ss 
+			resultMap.get("12");// 受理时间 hh:mm:ss
 			resultMap.get("13");// 交易日期yyyymmdd
 			resultMap.get("32");// 受理方机构编号
 			resultMap.get("40");// 终端硬件序列号
-			resultMap.get("41");// 终端编号  *(后面需要的参数)
-			resultMap.get("42");// 商户编号  *(后面需要的参数)
+			resultMap.get("41");// 终端编号 *(后面需要的参数)
+			resultMap.get("42");// 商户编号 *(后面需要的参数)
 			// TODO 需要集成的业务
-			
+			return resultMap;
+
 		} else {
+			//FIXME
 			String logMsg = resultMap.get("44");// 返回码说明
 			log.info("transaction failed ，" + logMsg);
-		}
-		return resultMap;
-	}
-
-    /**
-     * 签到接口
-     * @param requestMap
-     * @param macKey 新mac密钥
-     * @param masterKey 新主密钥
-     */
-	public static Map<String, String> login(Sign sign,String macKey,String masterKey){
-		//--参数验证,参数设置
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = SetParam.setLoginParam(sign);
-		if(requestMap==null){
-			log.info("requestMap is null");
 			return null;
 		}
-		
-		//--读取配置文件组织报文
-		byte[] sendData = InterfaceAPI.getPackets(requestMap, macKey, configUrl);
-		System.out.println("发送的报文：" + EncodeUtil.hex(sendData));// 将报文用16进制打印出来
-		
-		//--发送报文获得返回的字节数组
-		byte[] backData = InterfaceAPI.sendPackets(sendData, ip, port, timeout);
-		System.out.println("返回的报文：" + EncodeUtil.hex(backData));// 将报文用16进制打印出来
-		
-		//--解析返回的数组返回一个map
-    	Map<String, String> resultMap = InterfaceAPI.resolve(backData, requestMap, configUrl);
-    	
-    	// 获取返回报文的应答码 "00"表示成功
-        String replyCode = resultMap.get("39");// 此域为应答码
-    	if ("00".equals(replyCode)) {
-    		/******************* 返回获取的信息 *******************************************************/
+	}
+	
+	
+	/**
+	 * 
+	 *@描述  ：签到接口
+	 *@创建人：zhongy
+	 *@创建时间：2016年5月2日 下午6:46:17
+	 *@修改人：
+	 *@修改时间：
+	 *@修改描述：
+	 *@param operatorId 操作员编号
+	 *@param mechanismNo 受理方机构编号
+	 *@param serialNo 终端硬件序列号
+	 *@param terminalNo 终端编号
+	 *@param businessNo 商户编号
+	 *@param version 版本号
+	 *@param key mac秘钥
+	 *@param masterKey 主密钥
+	 *@return 
+	 */
+	public static Map<String,String> login(String operatorId,String mechanismNo,String serialNo,String terminalNo,String businessNo,String version,String key,String masterKey){
+		System.out.println("[签到]--------------");//XXX
+		//获取对应的发送数据
+		Map<String,String> dataMap = getLoginMsg(operatorId, mechanismNo, serialNo,terminalNo,businessNo,version);
+		if(dataMap==null){
+			log.info("getLoginMsg error");
+			return null;
+		}
+		//获取返回信息resultMap
+    	Map<String, String> resultMap = readAndSend(dataMap,key);
+    	if(resultMap==null){
+    		return null;
+    	}
+    	if ("00".equals(resultMap.get("39"))) {
     		resultMap.get("11");//终端流水号
     		resultMap.get("12");// 受理时间 hh:mm:ss
 			resultMap.get("13");// 交易日期yyyymmdd
@@ -372,49 +159,50 @@ public class SH_BCM_BusinessApi {
 			String newMacKey = map.get("newMacKey");//新mac密钥  *(后面需要的参数)
 			resultMap.put("newMacKey", newMacKey);
 			System.out.println("newMacKey:"+map.get("newMacKey"));
-			
+			return resultMap;
     		// TODO 需要集成的业务
     		
     	}else {
+    		// FIXME
 			String logMsg = resultMap.get("44");// 返回码说明
 			log.info("transaction failed ，" + logMsg);
+			return null;
 		}
-    	return resultMap;
     	
-    }
+	}
 	
 	
 	/**
-	 * 密钥重置接口
-	 * @param rekey
-	 * @param macKey
-	 * @return
+	 * 
+	 *@描述  ：密钥重置接口
+	 *@创建人：zhongy
+	 *@创建时间：2016年5月2日 下午6:46:17
+	 *@修改人：
+	 *@修改时间：
+	 *@修改描述：
+	 *@param operatorId 操作员编号
+	 *@param mechanismNo 受理方机构编号
+	 *@param serialNo 终端硬件序列号
+	 *@param terminalNo 终端编号
+	 *@param businessNo 商户编号
+	 *@param key mac秘钥
+	 *@return 
 	 */
-	
-	public static Map<String, String> rekey(Rekey rekey,String macKey){
-		//--参数验证，参数设置
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = SetParam.setRekeyParam(rekey);
-		if(requestMap==null){
-			log.info("requestMap is null");
+	public static Map<String,String> pwdReset(String operatorId,String mechanismNo,String serialNo,String terminalNo,String businessNo,String key){
+		System.out.println("[密钥重置]--------------");//XXX
+		//获取对应的发送数据
+		Map<String,String> dataMap = getPwdResetMsg(operatorId, mechanismNo, serialNo,terminalNo,businessNo);
+		if(dataMap==null){
+			log.info("getPwdResetMsg error");
 			return null;
 		}
-		
-		//--读取配置文件组织报文
-		byte[] sendData = InterfaceAPI.getPackets(requestMap, macKey, configUrl);
-		System.out.println("发送的报文：" + EncodeUtil.hex(sendData));// 将报文用16进制打印出来
-		
-		//--发送报文获得返回的字节数组
-		byte[] backData = InterfaceAPI.sendPackets(sendData, ip, port, timeout);
-		System.out.println("返回的报文：" + EncodeUtil.hex(backData));// 将报文用16进制打印出来
-		
-		//--解析返回的数组返回一个map
-    	Map<String, String> resultMap = InterfaceAPI.resolve(backData, requestMap, configUrl);
-    	
+		//获取返回信息resultMap
+    	Map<String, String> resultMap = readAndSend(dataMap,key);
+    	if(resultMap==null){
+    		return null;
+    	}
     	// 获取返回报文的应答码 "00"表示成功
-        String replyCode = resultMap.get("39");// 此域为应答码
-    	if ("00".equals(replyCode)) {
-    		/******************* 返回获取的信息 *******************************************************/
+    	if ("00".equals(resultMap.get("39"))) {
     		resultMap.get("12");// 受理时间 hh:mm:ss
 			resultMap.get("13");// 交易日期yyyymmdd
 			resultMap.get("32");// 受理方机构编号
@@ -425,7 +213,7 @@ public class SH_BCM_BusinessApi {
 			//DES解密此字段
 			//解密这串报文因为此域报文时加密处理的
 			Map<String, String> map = new HashMap<String, String>();
-			map = InterfaceAPI.decryptionDES(remark,macKey);
+			map = InterfaceAPI.decryptionDES(remark,key);
 			String masterKey =map.get("masterKey");//新主密钥   *(后面需要的参数)
 			String newMacKey = map.get("newMacKey");//新mac密钥   *(后面需要的参数)
 			resultMap.put("masterKey", masterKey);
@@ -434,6 +222,7 @@ public class SH_BCM_BusinessApi {
     		//TODO 需要集成的业务
     		
     	}else {
+    		// FIXME
 			String logMsg = resultMap.get("44");// 返回码说明
 			log.info("transaction failed ，" + logMsg);
 		}
@@ -441,86 +230,45 @@ public class SH_BCM_BusinessApi {
 	}
 	
 	/**
-	 * 结算接口
-	 * 接口说明：如果调用了此接口，就必须重新签到
-	 * @param bill
-	 * @param macKey
-	 * @return
+	 * 
+	 *@描述  ：兑换接口
+	 *@创建人：zhongy
+	 *@创建时间：2016年5月2日 下午6:46:17
+	 *@修改人：
+	 *@修改时间：
+	 *@修改描述：
+	 *@param primaryAccount 主账号
+	 *@param amount 交易金额
+	 *@param operatorId 操作员编号
+	 *@param num 终端流水号  需要不能重复目前方法是 签到的流水+1处理 //TODO
+	 *@param mechanismNo 受理方机构编号
+	 *@param serialNo 终端硬件序列号
+	 *@param terminalNo 终端编号
+	 *@param businessNo 商户编号
+	 *@param beachNo 批次号（跟签到产生的批次号相同）
+	 *@param couponCode 券码
+	 *@param key mac秘钥
+	 *@return 
 	 */
-	public static Map<String, String> billing(Billing bill,String macKey){
-		//--参数验证，参数设置
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = SetParam.setBillingParam(bill);
-		if(requestMap==null){
-			log.info("requestMap is null");
+	public static Map<String,String> cost(String primaryAccount,String amount,String operatorId,String num,String mechanismNo,String serialNo,String terminalNo,String businessNo,String beachNo,String couponCode,String key){
+		System.out.println("[兑换]--------------");//XXX
+		//获取对应的发送数据
+		Map<String,String> dataMap = getCostMsg(primaryAccount,amount,operatorId,num, mechanismNo, serialNo,terminalNo,businessNo,beachNo,couponCode);
+		if(dataMap==null){
+			log.info("getCostMsg error");
 			return null;
 		}
-		//--读取配置文件组织报文
-		byte[] sendData = InterfaceAPI.getPackets(requestMap, macKey, configUrl);
-		System.out.println("发送的报文：" + EncodeUtil.hex(sendData));// 将报文用16进制打印出来
-		
-		//--发送报文获得返回的字节数组
-		byte[] backData = InterfaceAPI.sendPackets(sendData, ip, port, timeout);
-		System.out.println("返回的报文：" + EncodeUtil.hex(backData));// 将报文用16进制打印出来
-		
-		//--解析返回的数组返回一个map
-    	Map<String, String> resultMap = InterfaceAPI.resolve(backData, requestMap, configUrl);
-    	
-    	// 获取返回报文的应答码 "00"表示成功，结算平；"39"表示结算部平
-        String replyCode = resultMap.get("39");// 此域为应答码
-    	if ("00".equals(replyCode) || "98".equals(replyCode)) {
-    		/******************* 返回获取的信息 *******************************************************/
-    		resultMap.get("12");// 受理时间 hh:mm:ss
-			resultMap.get("13");// 交易日期yyyymmdd
-			resultMap.get("32");// 受理方机构编号
-			resultMap.get("40");// 终端硬件序列号
-			resultMap.get("41");// 终端编号
-			resultMap.get("42");// 商户编号
-			resultMap.get("60");// 批次号
-			resultMap.get("62");//结算数据
-    		//TODO 需要集成的业务
+		//获取返回信息resultMap
+    	Map<String, String> resultMap = readAndSend(dataMap,key);
+    	if(resultMap==null){
+    		return null;
     	}
-    	
-    	else {
-			String logMsg = resultMap.get("44");// 返回码说明
-			log.info("transaction failed ，" + logMsg);
-		}
-    	return resultMap;
-	}
-    
-	/**
-	 * 核销接口
-	 * @param ver
-	 * @param macKey
-	 * @return
-	 */
-	public static Map<String, String> verification(Verification ver,String macKey){
-		//--参数验证，参数设置
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = SetParam.setVerificationParam(ver);
-		if(requestMap==null){
-			log.info("requestMap is null");
-			return null;
-		}
-		
-		//--读取配置文件组织报文
-		byte[] sendData = InterfaceAPI.getPackets(requestMap, macKey, configUrl);
-		System.out.println("发送的报文：" + EncodeUtil.hex(sendData));// 将报文用16进制打印出来
-		
-		//--发送报文获得返回的字节数组
-		byte[] backData = InterfaceAPI.sendPackets(sendData, ip, port, timeout);
-		System.out.println("返回的报文：" + EncodeUtil.hex(backData));// 将报文用16进制打印出来
-		
-		//--解析返回的数组返回一个map
-    	Map<String, String> resultMap = InterfaceAPI.resolve(backData, requestMap, configUrl);
-    	
     	// 获取返回报文的应答码 "00"表示成功
-    	//返回码等于40时候 为无效券码
-        //返回码等于45时 可用次数不足
+    	//返回码等于40时候 为无效券码//FIXME
+        //返回码等于45时 可用次数不足//FIXME
     	String logMsg = resultMap.get("44");// 返回码说明 
         String replyCode = resultMap.get("39");// 此域为应答码
     	if ("00".equals(replyCode)) {
-    		/******************* 返回获取的信息 *******************************************************/
     		resultMap.get("2");// 卡号  *(后面冲正需要的参数)
     		resultMap.get("4");// 交易金额(兑换礼券张数)  *(后面冲正需要的参数)
     		resultMap.get("11");// 终端流水号  *(后面冲正需要的参数)
@@ -535,64 +283,130 @@ public class SH_BCM_BusinessApi {
 			resultMap.get("42");// 商户编号  *(后面冲正需要的参数)
 			resultMap.get("60");// 批次号  *(后面冲正需要的参数)
 			resultMap.get("63");// 返回券码信息 
-			//TODO 
+			// TODO 
 			//需要集成的业务
     	}
     	
     	else {
+    		// FIXME
 			log.info("transaction failed ，" + logMsg);
 		}
     	return resultMap;
 	}
 	
 	/**
-	 * 冲正接口
-	 * 说明：冲正传参的数据取需要充正的那条记录的数据，值修改消息类型（包括交易日期和时间都要跟兑换接口的一样）
-	 * @param ver
-	 * @param macKey
-	 * @return
+	 * 
+	 *@描述  ：冲正接口  （参数与兑换交易的一致 只是交易类型改成0400）
+	 *@创建人：zhongy
+	 *@创建时间：2016年5月2日 下午6:46:17
+	 *@修改人：
+	 *@修改时间：
+	 *@修改描述：
+	 *@param primaryAccount 主账号
+	 *@param amount 交易金额
+	 *@param operatorId 操作员编号
+	 *@param num 终端流水号  //TODO  
+	 *@param mechanismNo 受理方机构编号
+	 *@param serialNo 终端硬件序列号
+	 *@param terminalNo 终端编号
+	 *@param businessNo 商户编号
+	 *@param beachNo 批次号（跟签到产生的批次号相同）
+	 *@param couponCode 券码
+	 *@param key mac秘钥
+	 *@return 
 	 */
-	public static Map<String, String> reversal(Verification ver,String macKey){
-		//-- 参数验证，参数设置
-		Map<String, String> requestMap = new HashMap<String, String>();
-		requestMap = SetParam.setReversalParam(ver);
-		if(requestMap==null){
-			log.info("requestMap is null");
+	public static Map<String,String> reversal(String primaryAccount,String amount,String operatorId,String num,String mechanismNo,String serialNo,String terminalNo,String businessNo,String beachNo,String couponCode,String key){
+		System.out.println("[冲正]--------------");//XXX
+		//获取对应的发送数据
+		Map<String,String> dataMap = getReversalMsg(primaryAccount,amount,operatorId,num, mechanismNo, serialNo,terminalNo,businessNo,beachNo,couponCode);
+		if(dataMap==null){
+			log.info("getReversalMsg error");
 			return null;
 		}
-		
-		//--读取配置文件组织报文
-		byte[] sendData = InterfaceAPI.getPackets(requestMap, macKey, configUrl);
-		System.out.println("发送的报文：" + EncodeUtil.hex(sendData));// 将报文用16进制打印出来
-		
-		//--发送报文获得返回的字节数组
-		byte[] backData = InterfaceAPI.sendPackets(sendData, ip, port, timeout);
-		System.out.println("返回的报文：" + EncodeUtil.hex(backData));// 将报文用16进制打印出来
-		
-		//--解析返回的数组返回一个map
-    	Map<String, String> resultMap = InterfaceAPI.resolve(backData, requestMap, configUrl);
-    	
+		//获取返回信息resultMap
+    	Map<String, String> resultMap = readAndSend(dataMap,key);
+    	if(resultMap==null){
+    		return null;
+    	}
     	// 获取返回报文的应答码 "00"表示成功
+    	//返回码等于40时候 为无效券码 //FIXME
+        //返回码等于45时 可用次数不足//FIXME
+    	String logMsg = resultMap.get("44");// 返回码说明 
         String replyCode = resultMap.get("39");// 此域为应答码
     	if ("00".equals(replyCode)) {
-    		/******************* 返回获取的信息 *******************************************************/
-    		resultMap.get("2");// 卡号
-    		resultMap.get("4");// 交易金额(兑换礼券张数)
-    		resultMap.get("11");// 终端流水号
-    		resultMap.get("12"); // 受理时间 hh:mm:ss
-    		resultMap.get("13");// 交易日期yyyymmdd
-    		resultMap.get("14");// 卡有效期
-			resultMap.get("15");// 主机清算日期
-			resultMap.get("24") ;// 账户类型 ‘07代表礼券账户’
+    		resultMap.get("2");// 卡号  *(后面冲正需要的参数)
+    		resultMap.get("4");// 交易金额(兑换礼券张数)  *(后面冲正需要的参数)
+    		resultMap.get("11");// 终端流水号  *(后面冲正需要的参数)
+    		resultMap.get("12"); // 受理时间 hh:mm:ss   *(后面冲正需要的参数)
+    		resultMap.get("13");// 交易日期yyyymmdd    *(后面冲正需要的参数)
+    		resultMap.get("14");// 卡有效期   *(后面冲正需要的参数)
+			resultMap.get("15");// 主机清算日期 *(后面冲正需要的参数)
+			resultMap.get("24") ;// 账户类型 ‘07代表礼券账户’ *(后面冲正需要的参数)
+			resultMap.get("32");// 受理方机构编号 *(后面冲正需要的参数)
+			resultMap.get("40");// 终端硬件序列号 *(后面冲正需要的参数)
+			resultMap.get("41");// 终端编号 *(后面冲正需要的参数)
+			resultMap.get("42");// 商户编号  *(后面冲正需要的参数)
+			resultMap.get("60");// 批次号  *(后面冲正需要的参数)
+			resultMap.get("63");// 返回券码信息 
+			// TODO 
+			//需要集成的业务
+    	}
+    	
+    	else {
+    		// FIXME
+			log.info("transaction failed ，" + logMsg);
+		}
+    	return resultMap;
+	}
+	
+	/**
+	 * 
+	 *@描述  ：结算接口 
+	 *@创建人：zhongy
+	 *@创建时间：2016年5月2日 下午6:46:17
+	 *@修改人：
+	 *@修改时间：
+	 *@修改描述：
+	 *@param operatorId 操作员编号
+	 *@param mechanismNo 受理方机构编号
+	 *@param serialNo 终端硬件序列号
+	 *@param terminalNo 终端编号
+	 *@param businessNo 商户编号
+	 *@param beachNo 批次号（跟签到产生的批次号相同）
+	 *@param billData 结算数据
+	 *@param key mac秘钥
+	 *@return 
+	 */
+	public static Map<String,String> billing(String operatorId,String mechanismNo,String serialNo,String terminalNo,String businessNo,String beachNo,String billData,String key){
+		System.out.println("[结算]--------------");//XXX
+		//获取对应的发送数据
+		Map<String,String> dataMap = getBillingMsg(operatorId,mechanismNo, serialNo,terminalNo,businessNo,beachNo,billData);
+		if(dataMap==null){
+			log.info("getBillingMsg error");
+			return null;
+		}
+		//获取返回信息resultMap
+    	Map<String, String> resultMap = readAndSend(dataMap,key);
+    	if(resultMap==null){
+    		return null;
+    	}
+    	//FIXME
+    	// 获取返回报文的应答码 "00"表示成功，结算平；"39"表示结算部平
+        String replyCode = resultMap.get("39");// 此域为应答码
+    	if ("00".equals(replyCode) || "98".equals(replyCode)) {
+    		resultMap.get("12");// 受理时间 hh:mm:ss
+			resultMap.get("13");// 交易日期yyyymmdd
 			resultMap.get("32");// 受理方机构编号
 			resultMap.get("40");// 终端硬件序列号
 			resultMap.get("41");// 终端编号
 			resultMap.get("42");// 商户编号
 			resultMap.get("60");// 批次号
-			resultMap.get("63");// 返回券码信息
-			//TODO 
-			//需要集成的业务
-    	}else {
+			resultMap.get("62");//结算数据
+    		//TODO 需要集成的业务
+    	}
+    	
+    	else {
+    		//FIXME
 			String logMsg = resultMap.get("44");// 返回码说明
 			log.info("transaction failed ，" + logMsg);
 		}
@@ -600,7 +414,247 @@ public class SH_BCM_BusinessApi {
 	}
 	
 	
-   
+//-----------------------------------------------------------报文组装区---------------------------------------------------------	
+	//-----------------------------------------------------------报文组装区---------------------------------------------------------	
+	
+	//获取签到的报文
+	
+	//注册报文
+	public static Map<String,String> getRegisteredMsg(String operatorId,String mechanismNo,String serialNo){
+		//参数发非空
+		if (Strings.isNullOrEmpty(operatorId)
+				|| Strings.isNullOrEmpty(mechanismNo)
+				|| Strings.isNullOrEmpty(serialNo)) {
+			log.info("params is null");
+			return null;
+		}
+		
+		Map<String,String> requestMap = new HashMap<String, String>();
+		requestMap.put(SimpleConstants.MTI,MSG_TYPEA);//设置消息类型
+		requestMap.put(SimpleConstants.TPDU,TPDU);
+		requestMap.put("3",CODE_registered);//设置交易处理码
+		requestMap.put("10", operatorId);//设置操作员编号
+		requestMap.put("32", mechanismNo);//受理方机构编号
+		requestMap.put("40",serialNo);//终端硬件序列号
+		requestMap.put("64", "");
+		return requestMap;
+	}
+	
+	//签到报文
+	public static Map<String,String> getLoginMsg(String operatorId,String mechanismNo,String serialNo,String terminalNo,String businessNo,String version){
+		// 参数发非空
+		if (Strings.isNullOrEmpty(operatorId)
+				|| Strings.isNullOrEmpty(mechanismNo)
+				|| Strings.isNullOrEmpty(serialNo)
+				|| Strings.isNullOrEmpty(terminalNo)
+				|| Strings.isNullOrEmpty(businessNo)) {
+			log.info("params is null");
+			return null;
+		}
+		Map<String,String> requestMap = new HashMap<String, String>();
+		requestMap.put(SimpleConstants.MTI,MSG_TYPEA);//设置消息类型
+		requestMap.put(SimpleConstants.TPDU,TPDU);
+		requestMap.put("3",CODE_sign);//设置交易处理码
+		requestMap.put("10", operatorId);//设置操作员编号
+		requestMap.put("32", mechanismNo);//受理方机构编号
+		requestMap.put("40",serialNo);//终端硬件序列号
+		requestMap.put("41",terminalNo);//终端编号
+		requestMap.put("42",businessNo);//商户编号
+		if(Strings.isNullOrEmpty(serialNo)){
+			requestMap.put("62",serialNo);//上送版本号
+		}
+		requestMap.put("64", "");
+		return requestMap;
+    	
+	}
+	//密钥重置报文
+	public static Map<String,String> getPwdResetMsg(String operatorId,String mechanismNo,String serialNo,String terminalNo,String businessNo){
+		// 参数发非空
+		if (Strings.isNullOrEmpty(operatorId)
+				|| Strings.isNullOrEmpty(mechanismNo)
+				|| Strings.isNullOrEmpty(serialNo)
+				|| Strings.isNullOrEmpty(terminalNo)
+				|| Strings.isNullOrEmpty(businessNo)) {
+			log.info("params is null");
+			return null;
+		}
+		Map<String,String> requestMap = new HashMap<String, String>();
+		requestMap.put(SimpleConstants.MTI,SH_BCM_BusinessApi.MSG_TYPEA);//设置消息类型
+		requestMap.put(SimpleConstants.TPDU, SH_BCM_BusinessApi.TPDU);
+		requestMap.put("3",SH_BCM_BusinessApi.CODE_rekey);//设置交易处理码
+		requestMap.put("10", operatorId);//设置操作员编号
+		requestMap.put("32", mechanismNo);//受理方机构编码
+		requestMap.put("40", serialNo);//终端硬件序列号
+		requestMap.put("41",terminalNo);//终端编号	      
+		requestMap.put("42",businessNo);//商户号
+		requestMap.put("64", "");//终端硬件序列号
+		return requestMap;
+	}
+	//兑换
+	public static Map<String,String> getCostMsg(String primaryAccount,String amount,String operatorId,String num,String mechanismNo,String serialNo,String terminalNo,String businessNo,String beachNo,String couponCode){
+		// 参数发非空
+		if (Strings.isNullOrEmpty(operatorId)
+				|| Strings.isNullOrEmpty(mechanismNo)
+				|| Strings.isNullOrEmpty(serialNo)
+				|| Strings.isNullOrEmpty(terminalNo)
+				|| Strings.isNullOrEmpty(businessNo)
+				|| Strings.isNullOrEmpty(beachNo)
+				|| Strings.isNullOrEmpty(couponCode)
+				|| Strings.isNullOrEmpty(num)) {
+			log.info("params is null");
+			return null;
+		}
+		// 券码要求是16位或12位，否者不符合
+		if (couponCode.trim().length() != 16 && couponCode.trim().length() != 12) {
+			log.info("CouponCode is null or length is not 16 or 12");
+			return null;
+		}
+		Map<String,String> requestMap = new HashMap<String, String>();
+		requestMap.put(SimpleConstants.MTI,MSG_TYPEB);//设置消息类型
+		requestMap.put(SimpleConstants.TPDU,TPDU);
+		requestMap.put("2",primaryAccount);
+		requestMap.put("3",CODE_verification);//设置交易处理码
+		requestMap.put("4",amount);//交易金额
+		requestMap.put("10",operatorId);//设置操作员编号
+		requestMap.put("11",num);//终端流水号//XXX 此处取值要取签到流水号加1
+		requestMap.put("12",new SimpleDateFormat("HHmmss").format(new Date()));//受理交易时间
+	    requestMap.put("13",new SimpleDateFormat("yyyyMMdd").format(new Date()));//交易日期
+	    requestMap.put("14",validity);//卡有效期
+	    requestMap.put("22",posMethod);//POS输入方式
+        requestMap.put("24",accountType);//账户类型
+		requestMap.put("32",mechanismNo);//受理方机构编码
+		requestMap.put("40",serialNo);//终端硬件序列号
+		requestMap.put("41",terminalNo);//终端编号	      
+		requestMap.put("42",businessNo);//商户号
+		requestMap.put("43","FFFFFFFFFFFFFFFFFFFFF0");//TODO
+		requestMap.put("60",beachNo);//批次号
+		requestMap.put("63",couponCode);//券码号
+		requestMap.put("64", "");//
+		return requestMap;
+	}
+	//冲正
+	public static Map<String,String> getReversalMsg(String primaryAccount,String amount,String operatorId,String num,String mechanismNo,String serialNo,String terminalNo,String businessNo,String beachNo,String couponCode){
+		// 参数发非空
+		if (Strings.isNullOrEmpty(operatorId)
+				|| Strings.isNullOrEmpty(mechanismNo)
+				|| Strings.isNullOrEmpty(serialNo)
+				|| Strings.isNullOrEmpty(terminalNo)
+				|| Strings.isNullOrEmpty(businessNo)
+				|| Strings.isNullOrEmpty(beachNo)
+				|| Strings.isNullOrEmpty(couponCode)
+				|| Strings.isNullOrEmpty(num)) {
+			log.info("params is null");
+			return null;
+		}
+		// 券码要求是16位或12位，否者不符合
+		if (couponCode.trim().length() != 16
+				&& couponCode.trim().length() != 12) {
+			log.info("CouponCode is null or length is not 16 or 12");
+			return null;
+		}
+		Map<String, String> requestMap = new HashMap<String, String>();
+		requestMap.put(SimpleConstants.MTI, MSG_TYPED);// 设置消息类型
+		requestMap.put(SimpleConstants.TPDU, TPDU);
+		requestMap.put("2", primaryAccount);
+		requestMap.put("3", CODE_verification);// 设置交易处理码
+		requestMap.put("4", amount);// 交易金额
+		requestMap.put("10", operatorId);// 设置操作员编号
+		requestMap.put("11", num);// 终端流水号//XXX 此处取值要取签到流水号加1
+		requestMap.put("12", acceptedTime);// 受理交易时间
+		requestMap.put("13", acceptedDate);// 交易日期
+		requestMap.put("14", validity);// 卡有效期
+		requestMap.put("22", posMethod);// POS输入方式
+		requestMap.put("24", accountType);// 账户类型
+		requestMap.put("32", mechanismNo);// 受理方机构编码
+		requestMap.put("40", serialNo);// 终端硬件序列号
+		requestMap.put("41", terminalNo);// 终端编号
+		requestMap.put("42", businessNo);// 商户号
+		requestMap.put("43", "FFFFFFFFFFFFFFFFFFFFF0");// TODO
+		requestMap.put("60", beachNo);// 批次号
+		requestMap.put("63", couponCode);// 券码号
+		requestMap.put("64", "");//
+		return requestMap;
+	}
+	//结算
+	public static Map<String,String> getBillingMsg(String operatorId,String mechanismNo,String serialNo,String terminalNo,String businessNo,String beachNo,String billData){
+		// 参数发非空
+		if (Strings.isNullOrEmpty(operatorId)
+				|| Strings.isNullOrEmpty(mechanismNo)
+				|| Strings.isNullOrEmpty(serialNo)
+				|| Strings.isNullOrEmpty(terminalNo)
+				|| Strings.isNullOrEmpty(businessNo)
+				|| Strings.isNullOrEmpty(beachNo)){
+			log.info("params is null");
+			return null;
+		}
+		Map<String, String> requestMap = new HashMap<String, String>();
+		requestMap.put(SimpleConstants.MTI, MSG_TYPEC);// 设置消息类型
+		requestMap.put(SimpleConstants.TPDU, TPDU);
+		requestMap.put("3", CODE_billing);// 设置交易处理码
+		requestMap.put("10", operatorId);// 设置操作员编号
+		requestMap.put("12", new SimpleDateFormat("HHmmss").format(new Date()));// 受理交易时间
+		requestMap.put("13", new SimpleDateFormat("yyyyMMdd").format(new Date()));// 交易日期
+		requestMap.put("32", mechanismNo);// 受理方机构编码
+		requestMap.put("40", serialNo);// 终端硬件序列号
+		requestMap.put("41", terminalNo);// 终端编号
+		requestMap.put("42", businessNo);// 商户号
+		requestMap.put("43", "FFFFFFFFFFFFFFFFFFFFF0");//XXX
+		if(!Strings.isNullOrEmpty(billData)){
+			requestMap.put("62", billData);// 结算数据
+		}
+		
+		requestMap.put("64", "");// 终端硬件序列号
+		return requestMap;
+	}
+	
+	
+	
+/********************** 测 试 方 法  *****************************/
+	
+    public static void main(String[] args) throws Exception {
+    	//注册
+		registered(operatorId, mechanismNo, serialNo, initMacKey);
+		//重置密钥
+		pwdReset(operatorId, mechanismNo, serialNo, terminalNo, businessNo,initMacKey);
+		//签到
+		login(operatorId, mechanismNo, serialNo, terminalNo, businessNo,version, macKey, masterKey);
+		//兑换
+		cost(primaryAccount, amount, operatorId, num, mechanismNo, serialNo,terminalNo, businessNo, beachNo, couponCode, macKey);
+		//冲正
+		reversal(primaryAccount, amount, operatorId, num, mechanismNo,serialNo, terminalNo, businessNo, beachNo, couponCode, macKey);
+		//结算
+		billing(operatorId, mechanismNo, serialNo, terminalNo, businessNo,beachNo, billData, macKey);
+   	    
+   	    
+    }  
+
+	
+	
+	/**
+	   * 
+	   *@描述  ：
+	   *@创建人：zhongy
+	   *@创建时间：2016年5月2日 下午7:02:22
+	   *@修改人：
+	   *@修改时间：
+	   *@修改描述：
+	   *@param requestMap 请求的参数集合
+	   *@param macKey mac 效验的key
+	   *@return   返回结果集 map 异常的时候返回null
+	   */
+	    public static Map readAndSend (Map<String,String> requestMap,String macKey){
+	    	//--读取配置文件组织报文
+			byte[] sendData = InterfaceAPI.getPackets(requestMap, macKey, configUrl);
+			System.out.println("[发送的报文]：" + EncodeUtil.hex(sendData));// 将报文用16进制打印出来
+			
+			//--发送报文获得返回的字节数组
+			byte[] backData = InterfaceAPI.sendPackets(sendData, ip, port, timeout);
+			System.out.println("[返回的报文]：" + EncodeUtil.hex(backData));// 将报文用16进制打印出来
+			
+			//--解析返回的数组返回一个map
+	    	Map<String, String> resultMap = InterfaceAPI.resolve(backData, requestMap, configUrl);
+	    	return resultMap;
+	    }  
     
     
 }

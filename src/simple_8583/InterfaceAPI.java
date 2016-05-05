@@ -13,6 +13,7 @@ import javax.xml.bind.JAXBException;
 
 import org.apache.log4j.Logger;
 
+import sh_bcm_card_new.exception.Simple8583Exception;
 import simple_8583.factory.IsoMsgFactory;
 import simple_8583.factory.XmlReader;
 import simple_8583.model.IsoPackage;
@@ -32,6 +33,9 @@ import simple_8583.util.MacUtil;
 public class InterfaceAPI {
 	
 	static Logger log = Logger.getLogger(InterfaceAPI.class);
+	
+	//读取次数限制
+	private static final int maxTimes=5;
 	
 	/**
 	 * 根据配置文件获得8583报文结构
@@ -108,9 +112,15 @@ public class InterfaceAPI {
 				socket.getOutputStream().write(sendData);
 				socket.getOutputStream().flush();
 				byte[] lenbuf = new byte[3];
-				
+				//读取次数限制
+				int count=0;
 				//--获取返回信息
 				while (socket != null && socket.isConnected()) {
+					count++;
+					if(count>maxTimes){
+						System.out.println("socket read data null");//XXX
+						return null;
+					}
 					if (socket.getInputStream().read(lenbuf) == 3) {
 						//计算报文所表示的报文长度(第二第三字节)
 						int size = computeLength(lenbuf)+2;
@@ -126,17 +136,20 @@ public class InterfaceAPI {
 					}
 				}
 				
-			} catch (SocketException e) {
-				log.info("exception "+e.getMessage());
-				e.printStackTrace();
-			} catch (IOException e) {
-				log.info("exception "+e.getMessage());
-				e.printStackTrace();
+			} finally {
+				if (socket != null) {
+					try {
+						socket.close();
+					} catch (Exception e) {
+						
+					}
+				}
 			}
 			
-		} catch (UnknownHostException e) {
-			log.info("exception "+e.getMessage());
-			e.printStackTrace();
+		} catch (Exception e) {
+//			e.printStackTrace();
+			//抛出可能的异常，比如连接超时等
+			throw new Simple8583Exception("网络通讯异常",e);
 		}
 		
 		return all;

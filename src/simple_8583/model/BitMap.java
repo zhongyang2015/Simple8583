@@ -3,7 +3,7 @@ package simple_8583.model;
 import java.lang.IllegalArgumentException;
 import java.util.List;
 
-import sh_bcm.util.EncodeUtil;
+import simple_8583.util.EncodeUtil;
 
 
 

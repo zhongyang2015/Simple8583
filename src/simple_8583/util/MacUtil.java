@@ -864,7 +864,7 @@ public class MacUtil {
 			}
 			String operator = sb.toString();
 			//TODO
-			System.out.println("补位后的操作数为：" + operator);
+			//System.out.println("补位后的操作数为：" + operator);
 			int count = operator.length()/16;
 			String [] blocks = new String[count];
 			for(int i = 0;i < count;i++)

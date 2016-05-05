@@ -96,6 +96,7 @@ public abstract class AbstractIsoMsgFactory {
 			throws Exception {
 		
 		String sth = "";
+		String str = "";//拼接返回报文域
 		if (pack == null || pack.size() == 0) {
 			throw new IllegalArgumentException("配置为空，请检查IsoPackage是否为空");
 		}
@@ -137,7 +138,7 @@ public abstract class AbstractIsoMsgFactory {
 							returnMap.put(field.getId(), field.getValue());//XXX 密钥确定是否和注册时使用相同的密钥
 						}
 							
-						System.out.println(field.getId()+":"+field.getValue());
+						str += field.getId()+":"+field.getValue()+"; ";
 					}else{
 						sts="";
 					}
@@ -145,7 +146,8 @@ public abstract class AbstractIsoMsgFactory {
 			} else {//非数据域
 				offset += subByte(bts, offset, field);
 				returnMap.put(field.getId(), field.getValue());
-				System.out.println(field.getId()+":"+field.getValue());
+				str += field.getId()+":"+field.getValue()+";  ";
+//				System.out.println(field.getId()+":"+field.getValue());
 				if (field.getId().equalsIgnoreCase(SimpleConstants.BIT_MAP)) {
 					hasBitMap = true;
 					bitMap = BitMap.addBits(field.getByteValue());
@@ -156,6 +158,7 @@ public abstract class AbstractIsoMsgFactory {
 				sth += sts;
 			}
 		}
+		System.out.println("[返回报文各域]："+str);
 		//MAC校验
 		//macValidate(pack,returnMap);
 		macValidate(sth,macKey,returnMap);
@@ -226,6 +229,7 @@ public abstract class AbstractIsoMsgFactory {
 	private byte[] merge(IsoPackage isoPackage) throws IOException {
 		ByteArrayOutputStream byteOutPut = new ByteArrayOutputStream(100);
 		String sth ="";
+		String str = "";//用作后面拼接每个域
 		for (IsoField field : isoPackage) {
 			if (field.isChecked()) {
 				String value_16="";
@@ -234,7 +238,7 @@ public abstract class AbstractIsoMsgFactory {
 					try {
 //						byteOutPut.write(mac(isoPackage));
 //						System.out.println(field.getId() + ":"+  EncodeUtil.hex(mac(isoPackage)));
-						System.out.println("16进制mac前数据"+sth);
+						//System.out.println("16进制mac前数据"+sth);
 						byteOutPut.write(EncodeUtil.bcd(MacUtil.MAC(macKey, null, sth)));
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -299,10 +303,12 @@ public abstract class AbstractIsoMsgFactory {
 						sth+=value_16.equals("")?EncodeUtil.hex(field.getByteValue()):value_16;	
 				}
 			
-				System.out.println(field.getId() + ":"+  EncodeUtil.hex(field.getByteValue()));
+				//System.out.println(field.getId() + ":"+  EncodeUtil.hex(field.getByteValue()));
+				str += field.getId() + ":"+  EncodeUtil.hex(field.getByteValue())+"; ";
 				byteOutPut.write(field.getByteValue());
 			}
 		}
+		System.out.println("[发送报文各域]："+str);//输出每个域
 		byte[] beforeSend = byteOutPut.toByteArray();//数据：tpdu+消息类型+bitmap+包体+mac
 		byte[] bts = new byte[beforeSend.length + 5];//数据包头（1）+数据包长度（2）+数据+数据包尾(1)+LRC(1)
 		
@@ -327,7 +333,7 @@ public abstract class AbstractIsoMsgFactory {
 		bts[0]=0x02;
 		//设置LRC
 		bts[bts.length-1]=(byte)hy;
-		System.out.println(Arrays.toString(bts));
+		//System.out.println(Arrays.toString(bts));
      	return bts;
 	}
 	
